@@ -45,7 +45,7 @@ namespace MCPForUnity.Editor.Windows.Components.Tools
             { "ui", "UI Toolkit" },
             { "scripting_ext", "Scripting Extensions" },
             { "testing", "Testing" },
-            { "probuilder", "ProBuilder �?Experimental" },
+            { "probuilder", "ProBuilder Experimental" },
             { "profiling", "Profiling & Frame Debugger" },
         };
 
@@ -532,11 +532,11 @@ namespace MCPForUnity.Editor.Windows.Components.Tools
                         }
 
                         success++;
-                        messages.Add($"�?{client.DisplayName}: Reconfigured");
+                        messages.Add($"锟�?{client.DisplayName}: Reconfigured");
                     }
                     catch (Exception ex)
                     {
-                        messages.Add($"�?{client.DisplayName}: {ex.Message}");
+                        messages.Add($"锟�?{client.DisplayName}: {ex.Message}");
                     }
                 }
 
@@ -735,7 +735,7 @@ namespace MCPForUnity.Editor.Windows.Components.Tools
                 var response = ManageScene.ExecuteMultiviewScreenshot();
                 if (response is SuccessResponse success)
                 {
-                    // The data object is an anonymous type with imageBase64 �?serialize to extract it
+                    // The data object is an anonymous type with imageBase64 锟�?serialize to extract it
                     var json = Newtonsoft.Json.Linq.JObject.FromObject(success.Data);
                     string base64 = json["imageBase64"]?.ToString();
                     if (!string.IsNullOrEmpty(base64))
