@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,18 +33,18 @@ namespace MCPForUnity.Editor.Windows
         private VisualElement updateNotification;
         private Label updateNotificationText;
 
-        private ToolbarToggle clientsTabToggle;
-        private ToolbarToggle depsTabToggle;
-        private ToolbarToggle advancedTabToggle;
-        private ToolbarToggle toolsTabToggle;
-        private ToolbarToggle resourcesTabToggle;
+        private Button clientsTabButton;
+        private Button depsTabButton;
+        private Button advancedTabButton;
+        private Button toolsTabButton;
+        private Button resourcesTabButton;
         private VisualElement clientsPanel;
         private VisualElement depsPanel;
         private VisualElement advancedPanel;
         private VisualElement toolsPanel;
         private VisualElement resourcesPanel;
 
-        private static readonly HashSet<MCPForUnityEditorWindow> OpenWindows = new();
+        private static readonly HashSet<MCPForUnityEditorWindow> OpenWindows = new HashSet<MCPForUnityEditorWindow>();
         private bool guiCreated = false;
         private bool toolsLoaded = false;
         private bool resourcesLoaded = false;
@@ -330,10 +330,7 @@ namespace MCPForUnity.Editor.Windows
                 toolsContainer.Add(toolsRoot);
                 toolsSection = new McpToolsSection(toolsRoot);
 
-                if (toolsTabToggle != null && toolsTabToggle.value)
-                {
-                    EnsureToolsLoaded();
-                }
+                EnsureToolsLoaded();
             }
             else
             {
@@ -350,10 +347,7 @@ namespace MCPForUnity.Editor.Windows
                 resourcesContainer.Add(resourcesRoot);
                 resourcesSection = new McpResourcesSection(resourcesRoot);
 
-                if (resourcesTabToggle != null && resourcesTabToggle.value)
-                {
-                    EnsureResourcesLoaded();
-                }
+                EnsureResourcesLoaded();
             }
             else
             {
@@ -600,57 +594,17 @@ namespace MCPForUnity.Editor.Windows
 
         private void SetupTabs()
         {
-            clientsTabToggle = rootVisualElement.Q<ToolbarToggle>("clients-tab");
-            depsTabToggle = rootVisualElement.Q<ToolbarToggle>("deps-tab");
-            advancedTabToggle = rootVisualElement.Q<ToolbarToggle>("advanced-tab");
-            toolsTabToggle = rootVisualElement.Q<ToolbarToggle>("tools-tab");
-            resourcesTabToggle = rootVisualElement.Q<ToolbarToggle>("resources-tab");
+            clientsTabButton = rootVisualElement.Q<Button>("clients-tab");
+            depsTabButton = rootVisualElement.Q<Button>("deps-tab");
+            advancedTabButton = rootVisualElement.Q<Button>("advanced-tab");
+            toolsTabButton = rootVisualElement.Q<Button>("tools-tab");
+            resourcesTabButton = rootVisualElement.Q<Button>("resources-tab");
 
-            clientsPanel?.RemoveFromClassList("hidden");
-            depsPanel?.RemoveFromClassList("hidden");
-            advancedPanel?.RemoveFromClassList("hidden");
-            toolsPanel?.RemoveFromClassList("hidden");
-            resourcesPanel?.RemoveFromClassList("hidden");
-
-            if (clientsTabToggle != null)
-            {
-                clientsTabToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (evt.newValue) SwitchPanel(ActivePanel.Clients);
-                });
-            }
-
-            if (depsTabToggle != null)
-            {
-                depsTabToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (evt.newValue) SwitchPanel(ActivePanel.Deps);
-                });
-            }
-
-            if (advancedTabToggle != null)
-            {
-                advancedTabToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (evt.newValue) SwitchPanel(ActivePanel.Advanced);
-                });
-            }
-
-            if (toolsTabToggle != null)
-            {
-                toolsTabToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (evt.newValue) SwitchPanel(ActivePanel.Tools);
-                });
-            }
-
-            if (resourcesTabToggle != null)
-            {
-                resourcesTabToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (evt.newValue) SwitchPanel(ActivePanel.Resources);
-                });
-            }
+            if (clientsTabButton != null) clientsTabButton.clicked += () => SwitchPanel(ActivePanel.Clients);
+            if (depsTabButton != null) depsTabButton.clicked += () => SwitchPanel(ActivePanel.Deps);
+            if (advancedTabButton != null) advancedTabButton.clicked += () => SwitchPanel(ActivePanel.Advanced);
+            if (toolsTabButton != null) toolsTabButton.clicked += () => SwitchPanel(ActivePanel.Tools);
+            if (resourcesTabButton != null) resourcesTabButton.clicked += () => SwitchPanel(ActivePanel.Resources);
 
             var savedPanel = EditorPrefs.GetString(EditorPrefKeys.EditorWindowActivePanel, ActivePanel.Clients.ToString());
             // Migrate old "Validation" saved value to "Deps"
@@ -715,12 +669,11 @@ namespace MCPForUnity.Editor.Windows
                     break;
             }
 
-            // Update toggle states
-            clientsTabToggle?.SetValueWithoutNotify(panel == ActivePanel.Clients);
-            depsTabToggle?.SetValueWithoutNotify(panel == ActivePanel.Deps);
-            advancedTabToggle?.SetValueWithoutNotify(panel == ActivePanel.Advanced);
-            toolsTabToggle?.SetValueWithoutNotify(panel == ActivePanel.Tools);
-            resourcesTabToggle?.SetValueWithoutNotify(panel == ActivePanel.Resources);
+                    clientsTabButton?.EnableInClassList("active", panel == ActivePanel.Clients);
+                    depsTabButton?.EnableInClassList("active", panel == ActivePanel.Deps);
+                    advancedTabButton?.EnableInClassList("active", panel == ActivePanel.Advanced);
+                    toolsTabButton?.EnableInClassList("active", panel == ActivePanel.Tools);
+                    resourcesTabButton?.EnableInClassList("active", panel == ActivePanel.Resources);
 
             EditorPrefs.SetString(EditorPrefKeys.EditorWindowActivePanel, panel.ToString());
         }
@@ -820,7 +773,7 @@ namespace MCPForUnity.Editor.Windows
 
             content.Add(bulkRow);
 
-            // Roslyn — for execute_code modern C# support
+            // Roslyn 鈥?for execute_code modern C# support
             // Check if Roslyn types are actually loaded (covers NuGet, Plugins folder, etc.)
             bool roslynLoaded = Type.GetType("Microsoft.CodeAnalysis.CSharp.CSharpCompilation, Microsoft.CodeAnalysis.CSharp") != null;
             bool roslynInstalledLocally = RoslynInstaller.IsInstalled();
@@ -860,7 +813,7 @@ namespace MCPForUnity.Editor.Windows
                 done => InstallUpmPackage("com.unity.cinemachine", done),
                 done => RemoveUpmPackage("com.unity.cinemachine", done));
 
-            // VFX Graph — uses preprocessor symbol, so check via UPM package list
+            // VFX Graph 鈥?uses preprocessor symbol, so check via UPM package list
             bool hasVfxGraph = IsUpmPackageInstalled("com.unity.visualeffectgraph");
             AddDependencyRow(content,
                 "VFX Graph",
@@ -984,19 +937,36 @@ namespace MCPForUnity.Editor.Windows
 
         private static void BatchUpmAdd(string[] packageIds, Action onComplete = null)
         {
-            var request = UnityEditor.PackageManager.Client.AddAndRemove(packageIds, null);
+            var request = UnityEditor.PackageManager.Client.Add(packageIds[0]);
             EditorUtility.DisplayProgressBar("Installing Packages", $"Installing {packageIds.Length} package(s)...", 0.5f);
-            PollUpmRequest(request, "install", onComplete);
+            PollUpmAddRequest(request, "install", onComplete);
         }
 
         private static void BatchUpmRemove(string[] packageIds, Action onComplete = null)
         {
-            var request = UnityEditor.PackageManager.Client.AddAndRemove(null, packageIds);
+            var request = UnityEditor.PackageManager.Client.Remove(packageIds[0]);
             EditorUtility.DisplayProgressBar("Removing Packages", $"Removing {packageIds.Length} package(s)...", 0.5f);
-            PollUpmRequest(request, "remove", onComplete);
+            PollUpmRemoveRequest(request, "remove", onComplete);
         }
 
-        private static void PollUpmRequest(UnityEditor.PackageManager.Requests.AddAndRemoveRequest request, string verb, Action onComplete)
+        private static void PollUpmAddRequest(UnityEditor.PackageManager.Requests.AddRequest request, string verb, Action onComplete)
+        {
+            EditorApplication.CallbackFunction pollCallback = null;
+            pollCallback = () =>
+            {
+                if (!request.IsCompleted) return;
+                EditorApplication.update -= pollCallback;
+                EditorUtility.ClearProgressBar();
+                if (request.Status == UnityEditor.PackageManager.StatusCode.Success)
+                    Debug.Log($"[MCP] Package {verb} succeeded.");
+                else
+                    Debug.LogError($"[MCP] Package {verb} failed: {request.Error?.message}");
+                onComplete?.Invoke();
+            };
+            EditorApplication.update += pollCallback;
+        }
+
+        private static void PollUpmRemoveRequest(UnityEditor.PackageManager.Requests.RemoveRequest request, string verb, Action onComplete)
         {
             EditorApplication.CallbackFunction pollCallback = null;
             pollCallback = () =>
@@ -1029,7 +999,7 @@ namespace MCPForUnity.Editor.Windows
 
         private static bool IsUpmPackageInstalled(string packageId)
         {
-            // Check manifest.json directly — faster than async UPM API
+            // Check manifest.json directly 鈥?faster than async UPM API
             string manifestPath = System.IO.Path.Combine(Application.dataPath, "../Packages/manifest.json");
             if (!System.IO.File.Exists(manifestPath)) return false;
             string manifest = System.IO.File.ReadAllText(manifestPath);

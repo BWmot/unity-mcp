@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using MCPForUnity.Editor.Constants;
@@ -15,14 +15,14 @@ namespace MCPForUnity.Editor.Windows.Components.Resources
     /// </summary>
     public class McpResourcesSection
     {
-        private readonly Dictionary<string, Toggle> resourceToggleMap = new();
+        private readonly Dictionary<string, Toggle> resourceToggleMap = new Dictionary<string, Toggle>();
         private Label summaryLabel;
         private Label noteLabel;
         private Button enableAllButton;
         private Button disableAllButton;
         private Button rescanButton;
         private VisualElement categoryContainer;
-        private List<ResourceMetadata> allResources = new();
+        private List<ResourceMetadata> allResources = new List<ResourceMetadata>();
 
         public VisualElement Root { get; }
 
@@ -49,20 +49,20 @@ namespace MCPForUnity.Editor.Windows.Components.Resources
             {
                 enableAllButton.AddToClassList("tool-action-button");
                 enableAllButton.style.marginRight = 4;
-                enableAllButton.clicked += () => SetAllResourcesState(true);
+                enableAllButton.clickable.clicked += () => SetAllResourcesState(true);
             }
 
             if (disableAllButton != null)
             {
                 disableAllButton.AddToClassList("tool-action-button");
                 disableAllButton.style.marginRight = 4;
-                disableAllButton.clicked += () => SetAllResourcesState(false);
+                disableAllButton.clickable.clicked += () => SetAllResourcesState(false);
             }
 
             if (rescanButton != null)
             {
                 rescanButton.AddToClassList("tool-action-button");
-                rescanButton.clicked += () =>
+                rescanButton.clickable.clicked += () =>
                 {
                     McpLog.Info("Rescanning MCP resources from the editor window.");
                     MCPServiceLocator.ResourceDiscovery.InvalidateCache();

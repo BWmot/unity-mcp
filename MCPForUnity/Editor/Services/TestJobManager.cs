@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,8 +60,8 @@ namespace MCPForUnity.Editor.Services
         private const string SessionKeyJobs = "MCPForUnity.TestJobsV1";
         private const string SessionKeyCurrentJobId = "MCPForUnity.CurrentTestJobIdV1";
 
-        private static readonly object LockObj = new();
-        private static readonly Dictionary<string, TestJob> Jobs = new();
+        private static readonly object LockObj = new object();
+        private static readonly Dictionary<string, TestJob> Jobs = new Dictionary<string, TestJob>();
         private static string _currentJobId;
         private static long _lastPersistUnixMs;
 
@@ -514,7 +514,7 @@ namespace MCPForUnity.Editor.Services
                             _currentJobId = null;
                             // Keep TestRunStatus in sync: when initialization times out, neither
                             // RunStarted nor RunFinished fires, so the running flag would otherwise leak.
-                            // Only clear it if this job is still the active one — a newer job may have taken over.
+                            // Only clear it if this job is still the active one …a newer job may have taken over.
                             TestRunStatus.MarkFinished();
                         }
                         shouldPersist = true;

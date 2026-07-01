@@ -16,7 +16,7 @@ namespace MCPForUnity.Editor.Tools
     [McpForUnityTool("manage_ui", AutoRegister = false, Group = "ui")]
     public static class ManageUI
     {
-        private static readonly HashSet<string> ValidExtensions = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> ValidExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".uxml", ".uss"
         };
@@ -179,7 +179,7 @@ namespace MCPForUnity.Editor.Tools
                 string xmlError = ValidateUxmlContent(contents, validationWarnings);
                 if (xmlError != null)
                 {
-                    return new ErrorResponse($"UXML validation failed — file was NOT written. {xmlError}");
+                    return new ErrorResponse($"UXML validation failed �?file was NOT written. {xmlError}");
                 }
                 contents = EnsureEditorExtensionMode(contents);
             }
@@ -271,7 +271,7 @@ namespace MCPForUnity.Editor.Tools
                 string xmlError = ValidateUxmlContent(contents, validationWarnings);
                 if (xmlError != null)
                 {
-                    return new ErrorResponse($"UXML validation failed — file was NOT updated. {xmlError}");
+                    return new ErrorResponse($"UXML validation failed �?file was NOT updated. {xmlError}");
                 }
                 contents = EnsureEditorExtensionMode(contents);
             }
@@ -298,6 +298,7 @@ namespace MCPForUnity.Editor.Tools
 
         private static object AttachUIDocument(JObject @params)
         {
+#if UNITY_2021_2_OR_NEWER
             var p = new ToolParams(@params);
 
             var targetResult = p.GetRequired("target");
@@ -390,10 +391,14 @@ namespace MCPForUnity.Editor.Tools
                     panelSettings = AssetDatabase.GetAssetPath(panelSettings),
                     sortOrder
                 });
+#else
+            return new ErrorResponse("UIDocument is not available in this Unity version. Requires Unity 2021.2+.");
+#endif
         }
 
         private static object CreatePanelSettings(JObject @params)
         {
+#if UNITY_2021_2_OR_NEWER
             var p = new ToolParams(@params);
 
             var pathResult = p.GetRequired("path");
@@ -457,10 +462,14 @@ namespace MCPForUnity.Editor.Tools
 
             return new SuccessResponse($"Created PanelSettings at {path}",
                 new { path, applied = changes });
+#else
+            return new ErrorResponse("PanelSettings is only available in Unity 2021.2 or newer.");
+#endif
         }
 
         private static object UpdatePanelSettings(JObject @params)
         {
+#if UNITY_2021_2_OR_NEWER
             var p = new ToolParams(@params);
 
             var pathResult = p.GetRequired("path");
@@ -479,7 +488,7 @@ namespace MCPForUnity.Editor.Tools
                 return new ErrorResponse($"No PanelSettings found at {path}");
 
             JToken settingsToken = p.GetRaw("settings");
-            if (settingsToken is not JObject settingsObj || settingsObj.Count == 0)
+            if (!(settingsToken is JObject settingsObj) || settingsObj.Count == 0)
                 return new ErrorResponse("'settings' dict is required with at least one property to update.");
 
             var changes = new List<string>();
@@ -493,8 +502,12 @@ namespace MCPForUnity.Editor.Tools
 
             return new SuccessResponse($"Updated PanelSettings at {path}",
                 new { path, applied = changes });
+#else
+            return new ErrorResponse("PanelSettings is only available in Unity 2021.2 or newer.");
+#endif
         }
 
+#if UNITY_2021_2_OR_NEWER
         private static PanelSettings CreateDefaultPanelSettings(string path)
         {
             string dir = Path.GetDirectoryName(path);
@@ -508,6 +521,7 @@ namespace MCPForUnity.Editor.Tools
             AssetDatabase.SaveAssets();
             return ps;
         }
+#endif
 
         /// <summary>
         /// Generic, data-driven applicator for PanelSettings properties.
@@ -518,6 +532,7 @@ namespace MCPForUnity.Editor.Tools
         ///   clearColor, colorClearValue, clearDepthStencil,
         ///   themeStyleSheet, dynamicAtlasSettings.
         /// </summary>
+#if UNITY_2021_2_OR_NEWER
         private static void ApplyPanelSettingsProperties(PanelSettings ps, JObject settings, List<string> changes)
         {
             foreach (var prop in settings)
@@ -603,7 +618,9 @@ namespace MCPForUnity.Editor.Tools
                 }
             }
         }
+#endif
 
+#if UNITY_2021_2_OR_NEWER
         private static void ApplyDynamicAtlasSettings(PanelSettings ps, JObject da, List<string> changes)
         {
             var daCopy = ps.dynamicAtlasSettings;
@@ -620,6 +637,7 @@ namespace MCPForUnity.Editor.Tools
             ps.dynamicAtlasSettings = daCopy;
             changes.Add("dynamicAtlasSettings");
         }
+#endif
 
         // ── Tiny helpers to keep the switch compact ─────────────────────────
 
@@ -721,6 +739,7 @@ namespace MCPForUnity.Editor.Tools
                 return new ErrorResponse($"Could not find target GameObject: {target}");
             }
 
+#if UNITY_2021_2_OR_NEWER
             var uiDoc = go.GetComponent<UIDocument>();
             if (uiDoc == null)
             {
@@ -752,6 +771,9 @@ namespace MCPForUnity.Editor.Tools
                         : null,
                     tree
                 });
+#else
+            return new ErrorResponse("UIDocument is not available in this Unity version. Requires Unity 2021.2+.");
+#endif
         }
 
         private static object SerializeVisualElement(VisualElement element, int depth, int maxDepth)
@@ -807,7 +829,7 @@ namespace MCPForUnity.Editor.Tools
 
         // Persistent RenderTextures keyed by PanelSettings instance ID so the panel
         // renders into them automatically every frame.
-        private static readonly Dictionary<int, RenderTexture> s_panelRTs = new();
+        private static readonly Dictionary<int, RenderTexture> s_panelRTs = new Dictionary<int, RenderTexture>();
 
         // Play-mode coroutine capture state.  Only one capture is in-flight at a
         // time; concurrent render_ui calls while a capture is pending are rejected
@@ -851,7 +873,7 @@ namespace MCPForUnity.Editor.Tools
             // dispatch a WaitForEndOfFrame coroutine that uses ScreenCapture, which
             // captures the fully-composited game view (including UI Toolkit overlays).
             // First call: queues the capture and returns "pending".
-            // Second call: result is ready – save PNG and return data.
+            // Second call: result is ready �?save PNG and return data.
             if (Application.isPlaying)
             {
                 // Build the output paths (used by both the pending and ready branches)
@@ -957,6 +979,7 @@ namespace MCPForUnity.Editor.Tools
             }
             // ── End play-mode branch ────────────────────────────────────────────────
 
+#if UNITY_2021_2_OR_NEWER
             // Resolve UIDocument
             UIDocument uiDoc = null;
             GameObject tempGo = null;
@@ -1011,7 +1034,7 @@ namespace MCPForUnity.Editor.Tools
 
                 // Check if we already have a persistent RT assigned to this PanelSettings.
                 // If the RT exists and its size matches, the panel has been rendering into it.
-                // If not, create one and assign it — content will be available on the next call.
+                // If not, create one and assign it �?content will be available on the next call.
                 // Look up from our cache rather than panelSettings.targetTexture,
                 // because we set targetTexture = null after each successful read
                 // to restore on-screen rendering.  The RT itself stays alive in s_panelRTs.
@@ -1037,7 +1060,7 @@ namespace MCPForUnity.Editor.Tools
                     }
                     else
                     {
-                        // Size changed — release the old RT
+                        // Size changed �?release the old RT
                         panelSettings.targetTexture = null;
                         string oldPath = AssetDatabase.GetAssetPath(cachedRt);
                         cachedRt.Release();
@@ -1184,6 +1207,9 @@ namespace MCPForUnity.Editor.Tools
                         UnityEngine.Object.DestroyImmediate(tempPs, true);
                 }
             }
+#else
+            return new ErrorResponse("UI rendering (UIDocument/PanelSettings) requires Unity 2021.2+.");
+#endif
         }
 
         // ---- Link Stylesheet ----
@@ -1401,6 +1427,7 @@ namespace MCPForUnity.Editor.Tools
                 return new ErrorResponse($"Could not find target GameObject: {target}");
             }
 
+#if UNITY_2021_2_OR_NEWER
             var uiDoc = go.GetComponent<UIDocument>();
             if (uiDoc == null)
             {
@@ -1420,6 +1447,9 @@ namespace MCPForUnity.Editor.Tools
                     gameObject = go.name,
                     removedSourceAsset = sourceAsset,
                 });
+#else
+            return new ErrorResponse("UIDocument is not available in this Unity version. Requires Unity 2021.2+.");
+#endif
         }
 
         // ---- Modify Visual Element ----
@@ -1445,6 +1475,7 @@ namespace MCPForUnity.Editor.Tools
                 return new ErrorResponse($"Could not find target GameObject: {target}");
             }
 
+#if UNITY_2021_2_OR_NEWER
             var uiDoc = go.GetComponent<UIDocument>();
             if (uiDoc == null)
             {
@@ -1579,6 +1610,9 @@ namespace MCPForUnity.Editor.Tools
             return new SuccessResponse(
                 $"Modified element '{elementName}' on {go.name}: {string.Join(", ", applied)}",
                 responseData);
+#else
+            return new ErrorResponse("UIDocument is not available in this Unity version. Requires Unity 2021.2+.");
+#endif
         }
 
         private static void ApplyInlineStyles(VisualElement element, JObject styleObj, List<string> modifications)

@@ -250,12 +250,12 @@ namespace MCPForUnity.Editor.Windows.Components.Connection
 
             if (startHttpServerButton != null)
             {
-                startHttpServerButton.clicked += OnHttpServerToggleClicked;
+                startHttpServerButton.clickable.clicked += OnHttpServerToggleClicked;
             }
 
             if (copyHttpServerCommandButton != null)
             {
-                copyHttpServerCommandButton.clicked += () =>
+                copyHttpServerCommandButton.clickable.clicked += () =>
                 {
                     if (!string.IsNullOrEmpty(httpServerCommandField?.value) && copyHttpServerCommandButton.enabledSelf)
                     {
@@ -275,7 +275,7 @@ namespace MCPForUnity.Editor.Windows.Components.Connection
                 }
             });
 
-            connectionToggleButton.clicked += OnConnectionToggleClicked;
+            connectionToggleButton.clickable.clicked += OnConnectionToggleClicked;
 
             // API Key field callbacks
             if (apiKeyField != null)
@@ -293,12 +293,12 @@ namespace MCPForUnity.Editor.Windows.Components.Connection
 
             if (getApiKeyButton != null)
             {
-                getApiKeyButton.clicked += OnGetApiKeyClicked;
+                getApiKeyButton.clickable.clicked += OnGetApiKeyClicked;
             }
 
             if (clearApiKeyButton != null)
             {
-                clearApiKeyButton.clicked += OnClearApiKeyClicked;
+                clearApiKeyButton.clickable.clicked += OnClearApiKeyClicked;
             }
         }
 

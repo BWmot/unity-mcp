@@ -201,9 +201,9 @@ namespace MCPForUnity.Editor.Windows.Components.Advanced
 
         private void RegisterCallbacks()
         {
-            browseUvxButton.clicked += OnBrowseUvxClicked;
-            clearUvxButton.clicked += OnClearUvxClicked;
-            browseGitUrlButton.clicked += OnBrowseGitUrlClicked;
+            browseUvxButton.clickable.clicked += OnBrowseUvxClicked;
+            clearUvxButton.clickable.clicked += OnClearUvxClicked;
+            browseGitUrlButton.clickable.clicked += OnBrowseGitUrlClicked;
 
             gitUrlOverride.RegisterValueChangedCallback(evt =>
             {
@@ -226,7 +226,7 @@ namespace MCPForUnity.Editor.Windows.Components.Advanced
                 OnHttpServerCommandUpdateRequested?.Invoke();
             });
 
-            clearGitUrlButton.clicked += () =>
+            clearGitUrlButton.clickable.clicked += () =>
             {
                 gitUrlOverride.value = string.Empty;
                 EditorPrefs.DeleteKey(EditorPrefKeys.GitUrlOverride);
@@ -307,22 +307,22 @@ namespace MCPForUnity.Editor.Windows.Components.Advanced
             }
             if (browseScreenshotsFolderButton != null)
             {
-                browseScreenshotsFolderButton.clicked += OnBrowseScreenshotsFolderClicked;
+                browseScreenshotsFolderButton.clickable.clicked += OnBrowseScreenshotsFolderClicked;
             }
             if (clearScreenshotsFolderButton != null)
             {
-                clearScreenshotsFolderButton.clicked += () =>
+                clearScreenshotsFolderButton.clickable.clicked += () =>
                 {
                     ScreenshotPreferences.DefaultFolder = string.Empty;
                     screenshotsFolderOverride?.SetValueWithoutNotify(string.Empty);
                 };
             }
 
-            browseDeploySourceButton.clicked += OnBrowseDeploySourceClicked;
-            clearDeploySourceButton.clicked += OnClearDeploySourceClicked;
-            deployButton.clicked += OnDeployClicked;
-            deployRestoreButton.clicked += OnRestoreBackupClicked;
-            testConnectionButton.clicked += () => OnTestConnectionRequested?.Invoke();
+            browseDeploySourceButton.clickable.clicked += OnBrowseDeploySourceClicked;
+            clearDeploySourceButton.clickable.clicked += OnClearDeploySourceClicked;
+            deployButton.clickable.clicked += OnDeployClicked;
+            deployRestoreButton.clickable.clicked += OnRestoreBackupClicked;
+            testConnectionButton.clickable.clicked += () => OnTestConnectionRequested?.Invoke();
         }
 
         public void UpdatePathOverrides()

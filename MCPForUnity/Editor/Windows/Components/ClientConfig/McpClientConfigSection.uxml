@@ -7,7 +7,7 @@
             <ui:Foldout name="client-details-foldout" text="Per-client setup" value="true" class="client-details-foldout">
                 <ui:VisualElement class="setting-row">
                     <ui:Label text="Client:" class="setting-label" />
-                    <ui:DropdownField name="client-dropdown" class="setting-dropdown-inline" />
+                    <ui:VisualElement name="client-dropdown" class="setting-dropdown-inline" />
                 </ui:VisualElement>
                 <ui:VisualElement class="setting-row">
                     <ui:VisualElement class="status-container">

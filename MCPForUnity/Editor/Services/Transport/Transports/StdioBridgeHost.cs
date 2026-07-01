@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -34,10 +34,10 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
     {
         private static TcpListener listener;
         private static bool isRunning = false;
-        private static readonly object lockObj = new();
-        private static readonly object startStopLock = new();
-        private static readonly object clientsLock = new();
-        private static readonly HashSet<TcpClient> activeClients = new();
+        private static readonly object lockObj = new object();
+        private static readonly object startStopLock = new object();
+        private static readonly object clientsLock = new object();
+        private static readonly HashSet<TcpClient> activeClients = new HashSet<TcpClient>();
         private static CancellationTokenSource cts;
         private static Task listenerTask;
         private static int processingCommands = 0;
@@ -53,7 +53,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
         // stale leftover from an abandoned retry and a fresh window is started (#1173).
         private const double PortBusyStaleResetSeconds = 60.0;
         private static int heartbeatSeq = 0;
-        private static Dictionary<string, QueuedCommand> commandQueue = new();
+        private static Dictionary<string, QueuedCommand> commandQueue = new Dictionary<string, QueuedCommand>();
         private static int mainThreadId;
         private static int currentUnityPort = 6400;
         private static bool isAutoConnectMode = false;
@@ -116,7 +116,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
 
             string fullPath = Path.Combine(
                 Application.dataPath,
-                path.StartsWith("Assets/") ? path[7..] : path
+                path.StartsWith("Assets/") ? path.Substring(7) : path
             );
             return Directory.Exists(fullPath);
         }
@@ -295,7 +295,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                         // Dispose runs on the main thread, but the kernel frees the bound port a few
                         // hundred ms later (longer on Windows/macOS).
                         //
-                        // Do NOT silently switch to a new port on the first conflict — the Python
+                        // Do NOT silently switch to a new port on the first conflict …the Python
                         // client stays pinned to the configured port and ends up talking to the
                         // orphan, returning busy/timeout forever (#1173). Keep the configured port
                         // and fail this attempt WITHOUT blocking: the reload handler's async resume
@@ -316,7 +316,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             WriteHeartbeat(true, "port_busy");
                             nextStartAt = now + 0.3; // throttle the editor-idle retry loop
                             // Arm the editor-idle retry even when Start() was called directly
-                            // (e.g. StartAutoConnect), not only during reload resume — so a transient
+                            // (e.g. StartAutoConnect), not only during reload resume …so a transient
                             // AddressAlreadyInUse can never leave the bridge permanently stopped.
                             if (!ensureUpdateHooked)
                             {
@@ -547,7 +547,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                     }
 
                     // In stdio transport there is only ever one active Python server.
-                    // A new connection means the old one is dead — close stale clients so
+                    // A new connection means the old one is dead …close stale clients so
                     // their hung ReadFrameAsUtf8Async calls throw and exit cleanly.
                     TcpClient[] staleClients;
                     lock (clientsLock)
@@ -573,7 +573,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             {
                                 if (IsDebugEnabled())
                                 {
-                                    var preview = commandText.Length > 120 ? commandText.Substring(0, 120) + "…" : commandText;
+                                    var preview = commandText.Length > 120 ? commandText.Substring(0, 120) + "..." : commandText;
                                     McpLog.Info($"recv framed: {preview}", always: false);
                                 }
                             }
@@ -650,7 +650,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             }
                             catch (Exception ex)
                             {
-                                IoInfo($"[IO] ✗ serialize FAIL tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
+                                IoInfo($"[IO] 鉁?serialize FAIL tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
                                 throw;
                             }
 
@@ -660,7 +660,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             }
                             catch (Exception ex)
                             {
-                                IoInfo($"[IO] ✗ write FAIL  tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
+                                IoInfo($"[IO] 鉁?write FAIL  tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
                                 throw;
                             }
                         }
@@ -910,7 +910,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             status = "error",
                             error = "Invalid JSON format",
                             receivedText = commandText.Length > 50
-                                ? commandText[..50] + "..."
+                                ? commandText.Substring(0, 50) + "..."
                                 : commandText,
                         };
                         tcs.SetResult(JsonConvert.SerializeObject(invalidJsonResponse));
@@ -954,7 +954,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                         status = "error",
                         error = ex.Message,
                         receivedText = payload?.Length > 50
-                            ? payload[..50] + "..."
+                            ? payload.Substring(0, 50) + "..."
                             : payload,
                     };
                     completionSource.TrySetResult(JsonConvert.SerializeObject(response));
@@ -1123,7 +1123,8 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                 {
                     sb.Append(b.ToString("x2"));
                 }
-                return sb.ToString()[..8];
+                string fullHash = sb.ToString();
+                return fullHash.Substring(0, Math.Min(8, fullHash.Length));
             }
             catch
             {

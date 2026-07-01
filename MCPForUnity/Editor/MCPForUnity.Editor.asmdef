@@ -10,7 +10,8 @@
     "excludePlatforms": [],
     "overrideReferences": true,
     "precompiledReferences": [
-        "Newtonsoft.Json.dll"
+        "Newtonsoft.Json.dll",
+        "System.IO.Compression.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

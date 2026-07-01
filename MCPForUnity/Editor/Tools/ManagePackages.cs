@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,11 +19,11 @@ namespace MCPForUnity.Editor.Tools
     public static class ManagePackages
     {
         // Pending async requests keyed by job ID
-        private static readonly Dictionary<string, Request> PendingRequests = new();
+        private static readonly Dictionary<string, Request> PendingRequests = new Dictionary<string, Request>();
 
         // Pending list/search requests keyed by job ID
-        private static readonly Dictionary<string, ListRequest> PendingListRequests = new();
-        private static readonly Dictionary<string, SearchRequest> PendingSearchRequests = new();
+        private static readonly Dictionary<string, ListRequest> PendingListRequests = new Dictionary<string, ListRequest>();
+        private static readonly Dictionary<string, SearchRequest> PendingSearchRequests = new Dictionary<string, SearchRequest>();
 
         public static object HandleCommand(JObject @params)
         {
@@ -203,7 +203,7 @@ namespace MCPForUnity.Editor.Tools
                 }
                 else
                 {
-                    // No in-memory request (lost after domain reload) — re-run recovery
+                    // No in-memory request (lost after domain reload) …re-run recovery
                     long nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                     PackageJobManager.TryRecoverJob(job, nowMs);
                     if (job.Status != PackageJobStatus.Running)
@@ -360,7 +360,7 @@ namespace MCPForUnity.Editor.Tools
 
             try
             {
-                var allPackages = PackageInfo.GetAllRegisteredPackages();
+                var allPackages = PackageJobManager.GetAllRegisteredPackagesCompat();
                 var info = allPackages.FirstOrDefault(pkg =>
                     string.Equals(pkg.name, package, StringComparison.OrdinalIgnoreCase));
 
@@ -593,7 +593,7 @@ namespace MCPForUnity.Editor.Tools
         {
             try
             {
-                var allPackages = PackageInfo.GetAllRegisteredPackages();
+                var allPackages = PackageJobManager.GetAllRegisteredPackagesCompat();
                 return new SuccessResponse(
                     "Package manager is available.",
                     new
@@ -679,7 +679,7 @@ namespace MCPForUnity.Editor.Tools
             if (string.IsNullOrWhiteSpace(package))
                 return (false, "Package identifier cannot be empty.", null);
 
-            // Git URLs — allow but warn
+            // Git URLs …allow but warn
             if (package.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
                 package.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 package.StartsWith("git://", StringComparison.OrdinalIgnoreCase) ||
@@ -687,11 +687,11 @@ namespace MCPForUnity.Editor.Tools
                 package.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
             {
                 return (true,
-                    $"Installing from git URL. Ensure this is a trusted source — git packages execute code on import.",
+                    $"Installing from git URL. Ensure this is a trusted source …git packages execute code on import.",
                     package);
             }
 
-            // File paths — allow but warn
+            // File paths …allow but warn
             if (package.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
                 return (true,
@@ -721,7 +721,7 @@ namespace MCPForUnity.Editor.Tools
             {
                 string name = PackageJobManager.ExtractPackageName(packageName);
 
-                var allPackages = PackageInfo.GetAllRegisteredPackages();
+                var allPackages = PackageJobManager.GetAllRegisteredPackagesCompat();
                 return allPackages
                     .Where(pkg => pkg.dependencies.Any(d =>
                         string.Equals(d.name, name, StringComparison.OrdinalIgnoreCase)))

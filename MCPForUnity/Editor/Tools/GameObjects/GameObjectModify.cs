@@ -37,6 +37,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
             string name = @params["name"]?.ToString() ?? @params["new_name"]?.ToString() ?? @params["newName"]?.ToString();
             if (!string.IsNullOrEmpty(name) && targetGo.name != name)
             {
+#if UNITY_2021_2_OR_NEWER
                 // Check if we're renaming the root object of an open prefab stage
                 var prefabStageForRename = PrefabStageUtility.GetCurrentPrefabStage();
                 bool isRenamingPrefabRoot = prefabStageForRename != null &&
@@ -72,6 +73,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                         McpLog.Info($"[GameObjectModify] Renamed prefab asset from '{assetPath}' to '{newAssetPath}'");
                     }
                 }
+#endif
 
                 targetGo.name = name;
                 modified = true;
@@ -291,6 +293,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
             EditorUtility.SetDirty(targetGo);
 
             // Mark the appropriate scene as dirty (handles both regular scenes and prefab stages)
+#if UNITY_2021_2_OR_NEWER
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage != null)
             {
@@ -300,6 +303,9 @@ namespace MCPForUnity.Editor.Tools.GameObjects
             {
                 EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             }
+#else
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+#endif
 
             return new SuccessResponse(
                 $"GameObject '{targetGo.name}' modified successfully.",

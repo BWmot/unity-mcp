@@ -10,7 +10,7 @@
             <ui:TextField name="value-field" class="value-field" />
             
             <!-- Type dropdown -->
-            <ui:DropdownField name="type-dropdown" class="type-dropdown" choices="String,Int,Float,Bool" index="0" />
+            <ui:VisualElement name="type-dropdown" class="type-dropdown" />
             
             <!-- Action buttons -->
             <ui:VisualElement class="action-buttons">

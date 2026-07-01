@@ -1904,6 +1904,7 @@ namespace MCPForUnity.Editor.Tools
             try
             {
                 // Check Prefab Stage first
+#if UNITY_2021_2_OR_NEWER
                 var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
                 Scene activeScene;
                 
@@ -1917,6 +1918,10 @@ namespace MCPForUnity.Editor.Tools
                     try { McpLog.Info("[ManageScene] get_hierarchy: querying EditorSceneManager.GetActiveScene", always: false); } catch { }
                     activeScene = EditorSceneManager.GetActiveScene();
                 }
+#else
+                try { McpLog.Info("[ManageScene] get_hierarchy: querying EditorSceneManager.GetActiveScene", always: false); } catch { }
+                Scene activeScene = EditorSceneManager.GetActiveScene();
+#endif
                 
                 try { McpLog.Info($"[ManageScene] get_hierarchy: got scene valid={activeScene.IsValid()} loaded={activeScene.isLoaded} name='{activeScene.name}'", always: false); } catch { }
                 if (!activeScene.IsValid() || !activeScene.isLoaded)

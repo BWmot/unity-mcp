@@ -344,6 +344,7 @@ namespace MCPForUnity.Editor.Tools
         /// </summary>
         private static void MarkOwningSceneDirty(GameObject targetGo)
         {
+#if UNITY_2021_2_OR_NEWER
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage != null)
             {
@@ -353,6 +354,9 @@ namespace MCPForUnity.Editor.Tools
             {
                 EditorSceneManager.MarkSceneDirty(targetGo.scene);
             }
+#else
+            EditorSceneManager.MarkSceneDirty(targetGo.scene);
+#endif
         }
 
         private static GameObject FindTarget(JToken targetToken, string searchMethod)

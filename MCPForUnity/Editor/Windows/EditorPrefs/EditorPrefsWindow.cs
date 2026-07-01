@@ -6,6 +6,7 @@ using System.Reflection;
 using MCPForUnity.Editor.Constants;
 using MCPForUnity.Editor.Helpers;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -136,7 +137,7 @@ namespace MCPForUnity.Editor.Windows
             searchField.style.height = 28;
             searchField.style.paddingTop = 2;
             searchField.style.paddingBottom = 2;
-            searchField.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
+            searchField.Q<Label>().style.unityFontStyleAndWeight = FontStyle.Bold;
             searchField.RegisterValueChangedCallback(evt =>
             {
                 searchFilter = evt.newValue ?? "";
@@ -326,10 +327,19 @@ namespace MCPForUnity.Editor.Windows
             var valueField = itemElement.Q<TextField>("value-field");
             valueField.value = item.Value;
 
-            var typeDropdown = itemElement.Q<DropdownField>("type-dropdown");
-            typeDropdown.index = (int)item.Type;
+            var choices = new List<string> { "String", "Int", "Float", "Bool" };
+            var typeDropdown = new PopupField<string>(choices, choices[(int)item.Type]);
+            typeDropdown.name = "type-dropdown";
+            // Replace the VisualElement placeholder with the PopupField
+            var typeDropdownPlaceholder = itemElement.Q<VisualElement>("type-dropdown");
+            if (typeDropdownPlaceholder != null)
+            {
+                var parent = typeDropdownPlaceholder.parent;
+                var index = parent.IndexOf(typeDropdownPlaceholder);
+                parent.Remove(typeDropdownPlaceholder);
+                parent.Insert(index, typeDropdown);
+            }
 
-            // Buttons
             var saveButton = itemElement.Q<Button>("save-button");
 
             // Style unset items
@@ -341,7 +351,7 @@ namespace MCPForUnity.Editor.Windows
             }
 
             // Callbacks
-            saveButton.clicked += () => SavePref(item, valueField.value, (EditorPrefType)typeDropdown.index);
+            saveButton.clickable.clicked += () => SavePref(item, valueField.value, (EditorPrefType)typeDropdown.index);
 
             return itemElement;
         }

@@ -158,6 +158,7 @@ namespace MCPForUnity.Editor.Helpers
         private static IEnumerable<int> SearchByPath(string path, bool includeInactive)
         {
             // Check Prefab Stage first - GameObject.Find() doesn't work in Prefab Stage
+#if UNITY_2021_2_OR_NEWER
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage != null)
             {
@@ -171,6 +172,17 @@ namespace MCPForUnity.Editor.Helpers
                     }
                 }
                 yield break;
+            }
+#endif
+            {
+                var allObjects = GetAllSceneObjects(includeInactive);
+                foreach (var go in allObjects)
+                {
+                    if (MatchesPath(go, path))
+                    {
+                        yield return go.GetInstanceIDCompat();
+                    }
+                }
             }
 
             // Normal scene mode
@@ -286,6 +298,7 @@ namespace MCPForUnity.Editor.Helpers
         public static IEnumerable<GameObject> GetAllSceneObjects(bool includeInactive)
         {
             // Check Prefab Stage first
+#if UNITY_2021_2_OR_NEWER
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage != null && prefabStage.prefabContentsRoot != null)
             {
@@ -296,6 +309,7 @@ namespace MCPForUnity.Editor.Helpers
                 }
                 yield break;
             }
+#endif
 
             // Normal scene mode
             var scene = SceneManager.GetActiveScene();

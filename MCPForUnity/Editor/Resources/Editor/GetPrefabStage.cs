@@ -18,6 +18,7 @@ namespace MCPForUnity.Editor.Resources.Editor
     {
         public static object HandleCommand(JObject @params)
         {
+#if UNITY_2021_2_OR_NEWER
             try
             {
                 var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -38,6 +39,9 @@ namespace MCPForUnity.Editor.Resources.Editor
             {
                 return new ErrorResponse($"Error getting prefab stage: {e.Message}");
             }
+#else
+            return new SuccessResponse("Prefab stage not available in this Unity version.", new { isOpen = false });
+#endif
         }
     }
 }

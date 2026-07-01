@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MCPForUnity.Editor.Clients;
 using MCPForUnity.Editor.Dependencies;
@@ -37,7 +37,7 @@ namespace MCPForUnity.Editor.Windows
         private VisualElement clientsList;
         private Button skipClientsButton;
         private Button configureSelectedButton;
-        private readonly List<(IMcpClientConfigurator client, Toggle toggle)> clientToggles = new();
+        private readonly List<(IMcpClientConfigurator client, Toggle toggle)> clientToggles = new List<(IMcpClientConfigurator client, Toggle toggle)>();
 
         private DependencyCheckResult _dependencyResult;
 
@@ -87,12 +87,12 @@ namespace MCPForUnity.Editor.Windows
             configureSelectedButton = rootVisualElement.Q<Button>("configure-selected-button");
 
             // Register callbacks
-            refreshButton.clicked += OnRefreshClicked;
-            doneButton.clicked += OnDoneClicked;
-            openPythonLinkButton.clicked += OnOpenPythonInstallClicked;
-            openUvLinkButton.clicked += OnOpenUvInstallClicked;
-            skipClientsButton.clicked += OnSkipClientsClicked;
-            configureSelectedButton.clicked += OnConfigureSelectedClicked;
+            refreshButton.clickable.clicked += OnRefreshClicked;
+            doneButton.clickable.clicked += OnDoneClicked;
+            openPythonLinkButton.clickable.clicked += OnOpenPythonInstallClicked;
+            openUvLinkButton.clickable.clicked += OnOpenUvInstallClicked;
+            skipClientsButton.clickable.clicked += OnSkipClientsClicked;
+            configureSelectedButton.clickable.clicked += OnConfigureSelectedClicked;
 
             // Initial update
             UpdateUI();
@@ -149,7 +149,7 @@ namespace MCPForUnity.Editor.Windows
             }
             if (clientToggles.Count == 0)
             {
-                clientsList.Add(new Label("No supported MCP clients detected on this machine. You can configure clients later from Tools → MCP for Unity."));
+                clientsList.Add(new Label("No supported MCP clients detected on this machine. You can configure clients later from Tools 鈫?MCP for Unity."));
                 configureSelectedButton.SetEnabled(false);
             }
         }
@@ -171,12 +171,12 @@ namespace MCPForUnity.Editor.Windows
                 {
                     MCPServiceLocator.Client.ConfigureClient(c);
                     success++;
-                    messages.Add($"✓ {c.DisplayName}");
+                    messages.Add($"鉁?{c.DisplayName}");
                 }
                 catch (System.Exception ex)
                 {
                     failure++;
-                    messages.Add($"⚠ {c.DisplayName}: {ex.Message}");
+                    messages.Add($"鈿?{c.DisplayName}: {ex.Message}");
                 }
             }
             if (success == 0 && failure == 0)
@@ -229,13 +229,13 @@ namespace MCPForUnity.Editor.Windows
             // Update overall status
             if (_dependencyResult.IsSystemReady)
             {
-                statusMessage.text = "✓ All requirements met! MCP for Unity is ready to use.";
+                statusMessage.text = "鉁?All requirements met! MCP for Unity is ready to use.";
                 statusMessage.style.color = new StyleColor(Color.green);
                 installationSection.style.display = DisplayStyle.None;
             }
             else
             {
-                statusMessage.text = "⚠ Missing dependencies. MCP for Unity requires all dependencies to function.";
+                statusMessage.text = "鈿?Missing dependencies. MCP for Unity requires all dependencies to function.";
                 statusMessage.style.color = new StyleColor(new Color(1f, 0.6f, 0f)); // Orange
                 installationSection.style.display = DisplayStyle.Flex;
                 installationInstructions.text = DependencyManager.GetInstallationRecommendations();

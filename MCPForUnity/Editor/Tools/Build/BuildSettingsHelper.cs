@@ -7,7 +7,7 @@ namespace MCPForUnity.Editor.Tools.Build
 {
     public static class BuildSettingsHelper
     {
-        public static object ReadProperty(string property, NamedBuildTarget namedTarget)
+        public static object ReadProperty(string property, BuildTargetGroup targetGroup)
         {
             switch (property.ToLowerInvariant())
             {
@@ -18,14 +18,14 @@ namespace MCPForUnity.Editor.Tools.Build
                 case "version":
                     return new { property, value = PlayerSettings.bundleVersion };
                 case "bundle_id":
-                    return new { property, value = PlayerSettings.GetApplicationIdentifier(namedTarget) };
+                    return new { property, value = PlayerSettings.GetApplicationIdentifier(targetGroup) };
                 case "scripting_backend":
-                    var backend = PlayerSettings.GetScriptingBackend(namedTarget);
+                    var backend = PlayerSettings.GetScriptingBackend(targetGroup);
                     return new { property, value = backend == ScriptingImplementation.IL2CPP ? "il2cpp" : "mono" };
                 case "defines":
-                    return new { property, value = PlayerSettings.GetScriptingDefineSymbols(namedTarget) };
+                    return new { property, value = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup) };
                 case "architecture":
-                    var arch = PlayerSettings.GetArchitecture(namedTarget);
+                    var arch = PlayerSettings.GetArchitecture(targetGroup);
                     string archName = arch switch { 0 => "x86_64", 1 => "arm64", 2 => "universal", _ => "unknown" };
                     return new { property, value = archName, raw = arch };
                 default:
@@ -33,7 +33,7 @@ namespace MCPForUnity.Editor.Tools.Build
             }
         }
 
-        public static string WriteProperty(string property, string value, NamedBuildTarget namedTarget)
+        public static string WriteProperty(string property, string value, BuildTargetGroup targetGroup)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace MCPForUnity.Editor.Tools.Build
                         PlayerSettings.bundleVersion = value;
                         return null;
                     case "bundle_id":
-                        PlayerSettings.SetApplicationIdentifier(namedTarget, value);
+                        PlayerSettings.SetApplicationIdentifier(targetGroup, value);
                         return null;
                     case "scripting_backend":
                         var backendValue = value.ToLowerInvariant();
@@ -58,22 +58,24 @@ namespace MCPForUnity.Editor.Tools.Build
                         var impl = backendValue == "il2cpp"
                             ? ScriptingImplementation.IL2CPP
                             : ScriptingImplementation.Mono2x;
-                        PlayerSettings.SetScriptingBackend(namedTarget, impl);
+                        PlayerSettings.SetScriptingBackend(targetGroup, impl);
                         return null;
                     case "defines":
-                        PlayerSettings.SetScriptingDefineSymbols(namedTarget, value);
+                        PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, value);
                         return null;
                     case "architecture":
                         int arch = value.ToLowerInvariant() switch
                         {
-                            "x86_64" or "none" or "default" => 0,
+                            "x86_64" => 0,
+                            "none" => 0,
+                            "default" => 0,
                             "arm64" => 1,
                             "universal" => 2,
                             _ => -1
                         };
                         if (arch < 0)
                             return $"Unknown architecture '{value}'. Valid: x86_64, arm64, universal";
-                        PlayerSettings.SetArchitecture(namedTarget, arch);
+                        PlayerSettings.SetArchitecture(targetGroup, arch);
                         return null;
                     default:
                         return $"Unknown property '{property}'. Valid: product_name, company_name, version, bundle_id, scripting_backend, defines, architecture";

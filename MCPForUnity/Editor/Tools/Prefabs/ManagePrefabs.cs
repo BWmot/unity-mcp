@@ -5,7 +5,11 @@ using System.Linq;
 using MCPForUnity.Editor.Helpers;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+#if UNITY_2021_2_OR_NEWER
 using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using MCPForUnity.Runtime.Helpers;
@@ -419,10 +423,17 @@ namespace MCPForUnity.Editor.Tools.Prefabs
             string[] colorProps = { "_BaseColor", "_Color" };
             foreach (string prop in colorProps)
             {
+#if UNITY_2021_2_OR_NEWER
                 if (mat.HasProperty(prop) && block.HasColor(prop))
                 {
                     mat.SetColor(prop, block.GetColor(prop));
                 }
+#else
+                if (mat.HasProperty(prop))
+                {
+                    mat.SetColor(prop, block.GetColor(prop));
+                }
+#endif
             }
         }
 
@@ -459,6 +470,7 @@ namespace MCPForUnity.Editor.Tools.Prefabs
         private static GameObject FindSceneObjectByName(string name, bool includeInactive)
         {
             // First check if we're in Prefab Stage
+#if UNITY_2021_2_OR_NEWER
             PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
             if (stage?.prefabContentsRoot != null)
             {
@@ -470,6 +482,7 @@ namespace MCPForUnity.Editor.Tools.Prefabs
                     }
                 }
             }
+#endif
 
             // Search in the active scene
             Scene activeScene = SceneManager.GetActiveScene();
@@ -958,7 +971,7 @@ namespace MCPForUnity.Editor.Tools.Prefabs
                         continue;
                     }
 
-                    if (entry.Value is not JObject props || !props.HasValues)
+                    if (!(entry.Value is JObject props) || !props.HasValues)
                     {
                         continue;
                     }
@@ -1311,6 +1324,7 @@ namespace MCPForUnity.Editor.Tools.Prefabs
                     return new ErrorResponse($"Prefab asset not found at '{sanitizedPath}'.");
                 }
 
+#if UNITY_2021_2_OR_NEWER
                 var prefabStage = PrefabStageUtility.OpenPrefab(sanitizedPath);
                 bool enteredStage = prefabStage != null
                     && string.Equals(prefabStage.assetPath, sanitizedPath, StringComparison.OrdinalIgnoreCase)
@@ -1331,6 +1345,9 @@ namespace MCPForUnity.Editor.Tools.Prefabs
                         enteredPrefabStage = enteredStage
                     }
                 );
+#else
+                return new ErrorResponse("Opening prefab stage is only available in Unity 2021.2 or newer.");
+#endif
             }
             catch (Exception e)
             {
@@ -1340,6 +1357,7 @@ namespace MCPForUnity.Editor.Tools.Prefabs
 
         private static object SavePrefabStage()
         {
+#if UNITY_2021_2_OR_NEWER
             try
             {
                 var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -1359,10 +1377,14 @@ namespace MCPForUnity.Editor.Tools.Prefabs
             {
                 return new ErrorResponse($"Error saving prefab stage: {e.Message}");
             }
+#else
+            return new ErrorResponse("Saving prefab stage is only available in Unity 2021.2 or newer.");
+#endif
         }
 
         private static object ClosePrefabStage(bool saveBeforeClose = false)
         {
+#if UNITY_2021_2_OR_NEWER
             try
             {
                 var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -1387,6 +1409,9 @@ namespace MCPForUnity.Editor.Tools.Prefabs
             {
                 return new ErrorResponse($"Error closing prefab stage: {e.Message}");
             }
+#else
+            return new ErrorResponse("Closing prefab stage is only available in Unity 2021.2 or newer.");
+#endif
         }
 
         private static bool TrySavePrefabStage(PrefabStage prefabStage, out string prefabPath, out string errorMessage)

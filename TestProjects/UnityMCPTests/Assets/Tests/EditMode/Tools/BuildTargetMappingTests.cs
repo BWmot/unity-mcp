@@ -25,9 +25,9 @@ namespace MCPForUnity.Tests.EditMode.Tools
         }
 
         [Test]
-        public void TryResolveNamedBuildTarget_UnknownTargetListsOnlyAvailableTargets()
+        public void TryResolveTargetGroup_UnknownTargetListsOnlyAvailableTargets()
         {
-            string error = BuildTargetMapping.TryResolveNamedBuildTarget("not-a-target", out _);
+            string error = BuildTargetMapping.TryResolveTargetGroup("not-a-target", out _);
 
             Assert.IsNotNull(error);
             StringAssert.Contains("windows64", error);
@@ -44,10 +44,10 @@ namespace MCPForUnity.Tests.EditMode.Tools
         }
 
         [Test]
-        public void TryResolveNamedBuildTarget_VisionOSUnavailableReturnsHelpfulError()
+        public void TryResolveTargetGroup_VisionOSUnavailableReturnsHelpfulError()
         {
             bool visionOSAvailable = Enum.TryParse("VisionOS", true, out BuildTarget _);
-            string error = BuildTargetMapping.TryResolveNamedBuildTarget("visionos", out _);
+            string error = BuildTargetMapping.TryResolveTargetGroup("visionos", out _);
 
             if (visionOSAvailable)
             {

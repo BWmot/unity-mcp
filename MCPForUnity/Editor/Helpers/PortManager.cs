@@ -336,7 +336,8 @@ namespace MCPForUnity.Editor.Helpers
                 {
                     sb.Append(b.ToString("x2"));
                 }
-                return sb.ToString()[..8]; // short, sufficient for filenames
+                string fullHash = sb.ToString();
+                return fullHash.Substring(0, Math.Min(8, fullHash.Length)); // short, sufficient for filenames
             }
             catch
             {

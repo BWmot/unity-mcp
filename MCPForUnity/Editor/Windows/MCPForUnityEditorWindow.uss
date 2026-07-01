@@ -67,44 +67,59 @@
 }
 
 /* Tabs */
-.tab-toolbar {
+.tab-container {
     margin: 8px 12px 0px 12px;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.tab-toolbar {
+    margin: 0px;
     padding: 0px;
     background-color: transparent;
     border-width: 0px;
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(0, 0, 0, 0.15);
 }
 
-.tab-toolbar .unity-toolbar-button {
+.tab-divider {
+    height: 1px;
+    margin-top: 12px;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.tab-toolbar .tab-button {
     flex-grow: 1;
     min-height: 32px;
     font-size: 12px;
     border-width: 0px;
     background-color: transparent;
-    margin: 0px 2px 0px 0px;
+    margin: 0px 2px 1px 0px;
     padding: 0px 12px;
     border-radius: 4px 4px 0px 0px;
-    margin-bottom: -1px;
 }
 
-.tab-toolbar .unity-toolbar-button:hover {
+.tab-toolbar .tab-button:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.tab-toolbar .unity-toolbar-button:checked {
+.tab-toolbar .tab-button.active {
     background-color: rgba(0, 0, 0, 0.04);
     border-width: 1px;
     border-color: rgba(0, 0, 0, 0.15);
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(56, 56, 56, 1);
+    border-bottom-width: 0px;
 }
 
 /* Panels */
+.panel-container {
+    flex-grow: 1;
+    min-height: 0;
+    margin: 0px 12px 12px 12px;
+}
+
 .panel-scroll {
     flex-grow: 1;
+    min-height: 0;
     margin: 0px;
-    padding: 0px 8px 0px 8px;
+    padding: 10px 8px 0px 8px;
 }
 
 .hidden {
@@ -125,10 +140,18 @@
     background-color: rgba(0, 0, 0, 0.08);
 }
 
-.unity-theme-light .tab-toolbar .unity-toolbar-button:checked {
+.unity-theme-light .tab-toolbar .tab-button.active {
     background-color: rgba(255, 255, 255, 0.5);
     border-color: rgba(0, 0, 0, 0.15);
-    border-bottom-color: rgba(194, 194, 194, 1);
+    border-bottom-color: rgba(0, 0, 0, 0.15);
+}
+
+.unity-theme-light .tab-divider {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.unity-theme-dark .tab-divider {
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
 .unity-theme-light .update-notification {

@@ -513,7 +513,9 @@ namespace MCPForUnity.Editor.Setup
             var normalizedRoot = Path.GetFullPath(root);
             foreach (var filePath in Directory.GetFiles(normalizedRoot, "*", SearchOption.AllDirectories))
             {
-                var relativePath = Path.GetRelativePath(normalizedRoot, filePath).Replace('\\', '/');
+                var relativePath = filePath.Substring(normalizedRoot.Length)
+                    .TrimStart(Path.DirectorySeparatorChar)
+                    .Replace('\\', '/');
                 if (string.Equals(relativePath, SyncOwnershipMarker, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -808,9 +810,9 @@ namespace MCPForUnity.Editor.Setup
 
         internal sealed class SyncPlan
         {
-            public List<string> Added { get; } = new();
-            public List<string> Updated { get; } = new();
-            public List<string> Deleted { get; } = new();
+            public List<string> Added { get; } = new List<string>();
+            public List<string> Updated { get; } = new List<string>();
+            public List<string> Deleted { get; } = new List<string>();
         }
     }
 }

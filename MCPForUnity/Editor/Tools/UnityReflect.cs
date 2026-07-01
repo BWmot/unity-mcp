@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +16,8 @@ namespace MCPForUnity.Editor.Tools
     public static class UnityReflect
     {
         private static Dictionary<string, Type[]> _assemblyTypeCache;
-        private static readonly object CacheLock = new();
-        private static readonly ConcurrentDictionary<Type, string[]> ExtensionMethodCache = new();
+        private static readonly object CacheLock = new object();
+        private static readonly ConcurrentDictionary<Type, string[]> ExtensionMethodCache = new ConcurrentDictionary<Type, string[]>();
 
         private static readonly string[] NamespacePrefixes =
         {
@@ -39,7 +39,7 @@ namespace MCPForUnity.Editor.Tools
             "UnityEngine.UIElements."
         };
 
-        private static readonly Dictionary<Type, string> FriendlyTypeNames = new()
+        private static readonly Dictionary<Type, string> FriendlyTypeNames = new Dictionary<Type, string>()
         {
             { typeof(void), "void" },
             { typeof(int), "int" },
@@ -184,7 +184,7 @@ namespace MCPForUnity.Editor.Tools
                     @namespace = type.Namespace,
                     assembly = type.Assembly.GetName().Name,
                     is_generic_type_definition = true,
-                    hint = "Open generic type — consult docs for member details."
+                    hint = "Open generic type …consult docs for member details."
                 });
             }
 
@@ -293,13 +293,13 @@ namespace MCPForUnity.Editor.Tools
             if (type.IsGenericTypeDefinition)
             {
                 return new SuccessResponse(
-                    $"Open generic type '{type.Name}' — consult docs for member details.", new
+                    $"Open generic type '{type.Name}' …consult docs for member details.", new
                     {
                         found = false,
                         type_name = type.FullName,
                         member_name = memberName,
                         is_generic_type_definition = true,
-                        hint = "Open generic type — consult docs for member details."
+                        hint = "Open generic type …consult docs for member details."
                     });
             }
 

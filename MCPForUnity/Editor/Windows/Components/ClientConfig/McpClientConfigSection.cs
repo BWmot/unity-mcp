@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,7 +24,9 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
     public class McpClientConfigSection
     {
         // UI Elements
-        private DropdownField clientDropdown;
+#if UNITY_2021_2_OR_NEWER
+        private PopupField<string> clientDropdown;
+#endif
         private Button configureAllButton;
         private VisualElement clientStatusIndicator;
         private Label clientStatusLabel;
@@ -48,8 +50,8 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
 
         // Data
         private readonly List<IMcpClientConfigurator> configurators;
-        private readonly Dictionary<IMcpClientConfigurator, DateTime> lastStatusChecks = new();
-        private readonly HashSet<IMcpClientConfigurator> statusRefreshInFlight = new();
+        private readonly Dictionary<IMcpClientConfigurator, DateTime> lastStatusChecks = new Dictionary<IMcpClientConfigurator, DateTime>();
+        private readonly HashSet<IMcpClientConfigurator> statusRefreshInFlight = new HashSet<IMcpClientConfigurator>();
         private static readonly TimeSpan StatusRefreshInterval = TimeSpan.FromSeconds(45);
         private int selectedClientIndex = 0;
         private bool isSkillSyncInProgress;
@@ -80,7 +82,19 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
 
         private void CacheUIElements()
         {
-            clientDropdown = Root.Q<DropdownField>("client-dropdown");
+#if UNITY_2021_2_OR_NEWER
+            clientDropdown = new PopupField<string>();
+            // Replace the VisualElement placeholder with the PopupField
+            var dropdownPlaceholder = Root.Q<VisualElement>("client-dropdown");
+            if (dropdownPlaceholder != null)
+            {
+                var parent = dropdownPlaceholder.parent;
+                var index = parent.IndexOf(dropdownPlaceholder);
+                parent.Remove(dropdownPlaceholder);
+                parent.Insert(index, clientDropdown);
+                clientDropdown.name = "client-dropdown";
+            }
+#endif
             configureAllButton = Root.Q<Button>("configure-all-button");
             clientStatusIndicator = Root.Q<VisualElement>("client-status-indicator");
             clientStatusLabel = Root.Q<Label>("client-status");
@@ -127,7 +141,9 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
             }
 
             var clientNames = configurators.Select(c => c.DisplayName).ToList();
+#if UNITY_2021_2_OR_NEWER
             clientDropdown.choices = clientNames;
+#endif
             if (clientNames.Count > 0)
             {
                 // Restore last selected client from EditorPrefs
@@ -136,7 +152,9 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
                 if (restoredIndex < 0)
                     restoredIndex = 0;
 
+#if UNITY_2021_2_OR_NEWER
                 clientDropdown.index = restoredIndex;
+#endif
                 selectedClientIndex = restoredIndex;
             }
 
@@ -153,6 +171,7 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
 
         private void RegisterCallbacks()
         {
+#if UNITY_2021_2_OR_NEWER
             clientDropdown.RegisterValueChangedCallback(evt =>
             {
                 int selectedIndex = GetIndexForDropdownValue(evt.newValue);
@@ -177,16 +196,17 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
                 UpdateClientProjectDirVisibility();
                 UpdateInstallSkillsVisibility();
             });
+#endif
 
-            configureAllButton.clicked += OnConfigureAllClientsClicked;
-            configureButton.clicked += OnConfigureClicked;
-            installSkillsButton.clicked += OnInstallSkillsClicked;
-            browseClaudeButton.clicked += OnBrowseClaudeClicked;
-            browseProjectDirButton.clicked += OnBrowseProjectDirClicked;
-            clearProjectDirButton.clicked += OnClearProjectDirClicked;
-            copyPathButton.clicked += OnCopyPathClicked;
-            openFileButton.clicked += OnOpenFileClicked;
-            copyJsonButton.clicked += OnCopyJsonClicked;
+            configureAllButton.clickable.clicked += OnConfigureAllClientsClicked;
+            configureButton.clickable.clicked += OnConfigureClicked;
+            installSkillsButton.clickable.clicked += OnInstallSkillsClicked;
+            browseClaudeButton.clickable.clicked += OnBrowseClaudeClicked;
+            browseProjectDirButton.clickable.clicked += OnBrowseProjectDirClicked;
+            clearProjectDirButton.clickable.clicked += OnClearProjectDirClicked;
+            copyPathButton.clickable.clicked += OnCopyPathClicked;
+            openFileButton.clickable.clicked += OnOpenFileClicked;
+            copyJsonButton.clickable.clicked += OnCopyJsonClicked;
         }
 
         public void UpdateClientStatus()
@@ -315,7 +335,7 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
                 // The bulk path mutated state for every detected client. Clear the per-client
                 // status cache so any subsequent dropdown switch (or the currently-selected
                 // client refresh below) reads fresh status from disk instead of the pre-bulk
-                // value — otherwise every other client in the dropdown looks like it still
+                // value …otherwise every other client in the dropdown looks like it still
                 // has Missing/IncorrectPath status until 45 s elapses on the throttle.
                 lastStatusChecks.Clear();
 
@@ -347,7 +367,7 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
 
             try
             {
-                // Per-client toggle: Configure→register, Unregister→remove. The Configure path
+                // Per-client toggle: Configure鈫抮egister, Unregister鈫抮emove. The Configure path
                 // on JsonFile / Codex configurators is always idempotent-write so the bulk
                 // "Configure All" can call it unconditionally; the toggle lives here in the UI
                 // handler so the manual button still does what its label says.
@@ -609,7 +629,7 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
             {
                 var client = configurators[selectedClientIndex];
                 // Force immediate for non-Claude CLI, or when explicitly requested
-                bool shouldForceImmediate = forceImmediate || client is not ClaudeCliMcpConfigurator;
+                bool shouldForceImmediate = forceImmediate || !(client is ClaudeCliMcpConfigurator);
                 RefreshClientStatus(client, shouldForceImmediate);
                 UpdateManualConfiguration();
                 UpdateClaudeCliPathVisibility();
@@ -732,7 +752,7 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
             }
 
             // Check for transport mismatch (3-way: Stdio, Http, HttpRemote).
-            // Skip when a project dir override is active — the registered transport
+            // Skip when a project dir override is active …the registered transport
             // in the overridden project may legitimately differ from the local server.
             bool hasTransportMismatch = false;
             if (client.ConfiguredTransport != ConfiguredTransport.Unknown
@@ -836,7 +856,11 @@ namespace MCPForUnity.Editor.Windows.Components.ClientConfig
             if (string.IsNullOrWhiteSpace(dropdownValue))
                 return -1;
 
+#if UNITY_2021_2_OR_NEWER
             int directIndex = clientDropdown.choices?.IndexOf(dropdownValue) ?? -1;
+#else
+            int directIndex = -1;
+#endif
             if (directIndex >= 0 && directIndex < configurators.Count)
                 return directIndex;
 

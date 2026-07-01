@@ -86,11 +86,11 @@ namespace MCPForUnity.Editor.Tools
                 if (backendLower != "il2cpp" && backendLower != "mono")
                     return new ErrorResponse(
                         $"Unknown scripting_backend '{scriptingBackend}'. Valid: mono, il2cpp");
-                var namedTarget = BuildTargetMapping.GetNamedBuildTarget(target);
+                var targetGroup = BuildTargetMapping.GetTargetGroupForBuildTarget(target);
                 var impl = backendLower == "il2cpp"
                     ? ScriptingImplementation.IL2CPP
                     : ScriptingImplementation.Mono2x;
-                PlayerSettings.SetScriptingBackend(namedTarget, impl);
+                PlayerSettings.SetScriptingBackend(targetGroup, impl);
             }
 
 #if UNITY_6000_0_OR_NEWER
@@ -215,7 +215,9 @@ namespace MCPForUnity.Editor.Tools
                     target = EditorUserBuildSettings.activeBuildTarget.ToString(),
                     target_group = BuildTargetMapping.GetTargetGroup(
                         EditorUserBuildSettings.activeBuildTarget).ToString(),
+#if UNITY_2021_2_OR_NEWER
                     subtarget = EditorUserBuildSettings.standaloneBuildSubtarget.ToString()
+#endif
                 });
             }
 
@@ -241,10 +243,12 @@ namespace MCPForUnity.Editor.Tools
             if (!string.IsNullOrEmpty(subtargetStr))
             {
                 string subtargetLower = subtargetStr.ToLowerInvariant();
+#if UNITY_2021_2_OR_NEWER
                 if (subtargetLower == "server")
                     EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                 else if (subtargetLower == "player")
                     EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Player;
+#endif
             }
 
             // SwitchActiveBuildTarget is synchronous — blocks until reimport completes
@@ -269,14 +273,14 @@ namespace MCPForUnity.Editor.Tools
             string value = p.Get("value");
 
             // Resolve target
-            string err = BuildTargetMapping.TryResolveNamedBuildTarget(targetName, out var namedTarget);
+            string err = BuildTargetMapping.TryResolveTargetGroup(targetName, out var targetGroup);
             if (err != null)
                 return new ErrorResponse(err);
 
             if (string.IsNullOrEmpty(value))
             {
                 // Read
-                var result = BuildSettingsHelper.ReadProperty(property, namedTarget);
+                var result = BuildSettingsHelper.ReadProperty(property, targetGroup);
                 if (result == null)
                     return new ErrorResponse(
                         $"Unknown property '{property}'. Valid: {string.Join(", ", BuildSettingsHelper.ValidProperties)}");
@@ -284,11 +288,11 @@ namespace MCPForUnity.Editor.Tools
             }
 
             // Write
-            string writeErr = BuildSettingsHelper.WriteProperty(property, value, namedTarget);
+            string writeErr = BuildSettingsHelper.WriteProperty(property, value, targetGroup);
             if (writeErr != null)
                 return new ErrorResponse(writeErr);
             return new SuccessResponse($"Set {property} = {value}.",
-                BuildSettingsHelper.ReadProperty(property, namedTarget));
+                BuildSettingsHelper.ReadProperty(property, targetGroup));
         }
 
         // ── scenes ─────────────────────────────────────────────────────
@@ -477,7 +481,11 @@ namespace MCPForUnity.Editor.Tools
                     if (EditorUserBuildSettings.activeBuildTarget != child.Target)
                         EditorUserBuildSettings.SwitchActiveBuildTarget(group, child.Target);
 
+#if UNITY_2021_2_OR_NEWER
                     int subtarget = (int)StandaloneBuildSubtarget.Player;
+#else
+                    int subtarget = 0; // Subtarget not supported before Unity 2021.2
+#endif
                     var options = BuildRunner.CreateBuildOptions(
                         child.Target, child.OutputPath, null, buildOpts, subtarget);
                     BuildRunner.ScheduleBuild(child, options);

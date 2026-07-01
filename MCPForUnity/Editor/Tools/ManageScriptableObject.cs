@@ -27,7 +27,7 @@ namespace MCPForUnity.Editor.Tools
         private const string CodeTargetNotFound = "target_not_found";
         private const string CodeAssetCreateFailed = "asset_create_failed";
 
-        private static readonly HashSet<string> ValidActions = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> ValidActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             // NOTE: Action strings are normalized by NormalizeAction() (lowercased, '_'/'-' removed),
             // so we only need the canonical normalized forms here.
@@ -222,7 +222,7 @@ namespace MCPForUnity.Editor.Tools
                 return new ErrorResponse(CodeInvalidParams, new { message = "'patches' is required.", targetPath, targetGuid });
             }
 
-            if (patchesToken is not JArray patches)
+            if (!(patchesToken is JArray patches))
             {
                 return new ErrorResponse(CodeInvalidParams, new { message = "'patches' must be an array.", targetPath, targetGuid });
             }
@@ -274,7 +274,7 @@ namespace MCPForUnity.Editor.Tools
 
             for (int i = 0; i < patches.Count; i++)
             {
-                if (patches[i] is not JObject patchObj)
+                if (!(patches[i] is JObject patchObj))
                 {
                     results.Add(new { index = i, propertyPath = "", op = "", ok = false, message = $"Patch at index {i} must be an object." });
                     continue;
@@ -449,7 +449,7 @@ namespace MCPForUnity.Editor.Tools
 
             for (int i = 0; i < patches.Count; i++)
             {
-                if (patches[i] is not JObject patchObj)
+                if (!(patches[i] is JObject patchObj))
                 {
                     results.Add(new { propertyPath = "", op = "", ok = false, message = $"Patch at index {i} must be an object." });
                     continue;
@@ -497,7 +497,7 @@ namespace MCPForUnity.Editor.Tools
             changed = false;
             try
             {
-                // Phase 1.1: Normalize friendly path syntax (e.g., myList[5] → myList.Array.data[5])
+                // Phase 1.1: Normalize friendly path syntax (e.g., myList[5] �?myList.Array.data[5])
                 string normalizedPath = NormalizePropertyPath(propertyPath);
                 string normalizedOp = op.Trim().ToLowerInvariant();
 
@@ -1136,7 +1136,7 @@ namespace MCPForUnity.Editor.Tools
                 var curve = new AnimationCurve();
                 foreach (var keyToken in keysArray)
                 {
-                    if (keyToken is not JObject keyObj)
+                    if (!(keyToken is JObject keyObj))
                     {
                         message = "Each keyframe must be an object with 'time' and 'value'.";
                         return false;
@@ -1192,10 +1192,10 @@ namespace MCPForUnity.Editor.Tools
         /// 
         /// <para><b>Format detection:</b></para>
         /// <list type="bullet">
-        ///   <item>3-element array → Interpreted as Euler angles (degrees)</item>
-        ///   <item>4-element array → Interpreted as raw quaternion [x, y, z, w]</item>
-        ///   <item>Object with euler → Uses euler array for rotation</item>
-        ///   <item>Object with x, y, z, w → Uses raw quaternion components</item>
+        ///   <item>3-element array �?Interpreted as Euler angles (degrees)</item>
+        ///   <item>4-element array �?Interpreted as raw quaternion [x, y, z, w]</item>
+        ///   <item>Object with euler �?Uses euler array for rotation</item>
+        ///   <item>Object with x, y, z, w �?Uses raw quaternion components</item>
         /// </list>
         /// </summary>
         /// <param name="prop">The SerializedProperty of type Quaternion to set</param>
@@ -1298,7 +1298,7 @@ namespace MCPForUnity.Editor.Tools
             targetGuid = null;
             error = null;
 
-            if (targetToken is not JObject targetObj)
+            if (!(targetToken is JObject targetObj))
             {
                 error = new ErrorResponse(CodeInvalidParams, new { message = "'target' must be an object with {guid|path}." });
                 return false;
@@ -1423,7 +1423,7 @@ namespace MCPForUnity.Editor.Tools
             var s = AssetPathUtility.NormalizeSeparators(path);
             while (s.IndexOf("//", StringComparison.Ordinal) >= 0)
             {
-                s = s.Replace("//", "/", StringComparison.Ordinal);
+                s = s.Replace("//", "/");
             }
             return s;
         }

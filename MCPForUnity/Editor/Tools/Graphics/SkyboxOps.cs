@@ -23,7 +23,7 @@ namespace MCPForUnity.Editor.Tools.Graphics
 #if UNITY_2022_1_OR_NEWER
                 RenderSettings.customReflectionTexture = value;
 #else
-                RenderSettings.customReflection = value;
+                RenderSettings.customReflection = value as Cubemap;
 #endif
             }
         }
@@ -417,8 +417,10 @@ namespace MCPForUnity.Editor.Tools.Graphics
                 case ShaderPropertyType.Float:
                 case ShaderPropertyType.Range:
                     return mat.GetFloat(propName);
+#if UNITY_2022_1_OR_NEWER
                 case ShaderPropertyType.Int:
                     return mat.GetInt(propName);
+#endif
                 case ShaderPropertyType.Vector:
                     var v = mat.GetVector(propName);
                     return new[] { v.x, v.y, v.z, v.w };
@@ -453,9 +455,11 @@ namespace MCPForUnity.Editor.Tools.Graphics
                     case ShaderPropertyType.Range:
                         mat.SetFloat(propName, (float)value);
                         return true;
+#if UNITY_2022_1_OR_NEWER
                     case ShaderPropertyType.Int:
                         mat.SetInt(propName, (int)value);
                         return true;
+#endif
                     case ShaderPropertyType.Vector:
                         if (value is JArray vecArr && vecArr.Count >= 2)
                         {

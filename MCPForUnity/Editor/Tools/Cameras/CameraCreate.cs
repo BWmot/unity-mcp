@@ -11,7 +11,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
 {
     internal static class CameraCreate
     {
-        private static readonly Dictionary<string, (string body, string aim)> Presets = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, (string body, string aim)> Presets = new Dictionary<string, (string body, string aim)>(StringComparer.OrdinalIgnoreCase)
         {
             ["follow"]        = ("CinemachineFollow",              "CinemachineRotationComposer"),
             ["third_person"]  = ("CinemachineThirdPersonFollow",   "CinemachineRotationComposer"),
@@ -60,7 +60,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
             return new
             {
                 success = true,
-                message = $"Created basic Camera '{name}' (Cinemachine not installed â€” using Unity Camera).",
+                message = $"Created basic Camera '{name}' (Cinemachine not installed â€?using Unity Camera).",
                 data = new
                 {
                     instanceID = go.GetInstanceIDCompat(),
@@ -90,7 +90,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
             var cmType = CameraHelpers.CinemachineCameraType;
             var cmCamera = go.AddComponent(cmType);
 
-            // PrioritySettings is a struct with Enabled + m_Value â€” use SerializedProperty
+            // PrioritySettings is a struct with Enabled + m_Value â€?use SerializedProperty
             using (var so = new SerializedObject(cmCamera))
             {
                 var priorityProp = so.FindProperty("Priority");

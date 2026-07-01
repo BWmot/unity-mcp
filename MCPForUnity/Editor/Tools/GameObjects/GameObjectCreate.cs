@@ -295,7 +295,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                         McpLog.Info($"[ManageGameObject.Create] Created directory for prefab: {directoryPath}");
                     }
 
-                    finalInstance = PrefabUtility.SaveAsPrefabAssetAndConnect(newGo, finalPrefabPath, InteractionMode.UserAction);
+                    finalInstance = PrefabUtility.SaveAsPrefabAssetAndConnect(newGo, finalPrefabPath, InteractionMode.AutomatedAction);
 
                     if (finalInstance == null)
                     {

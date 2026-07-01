@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEditor.TestTools.TestRunner.Api;
 
 namespace MCPForUnity.Editor.Services
@@ -9,7 +9,7 @@ namespace MCPForUnity.Editor.Services
     /// </summary>
     internal static class TestRunStatus
     {
-        private static readonly object LockObj = new();
+        private static readonly object LockObj = new object();
 
         private static bool _isRunning;
         private static TestMode? _mode;

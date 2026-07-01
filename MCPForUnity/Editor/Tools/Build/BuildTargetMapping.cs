@@ -63,29 +63,31 @@ namespace MCPForUnity.Editor.Tools.Build
             }
         }
 
-        public static NamedBuildTarget GetNamedBuildTarget(BuildTarget target)
+        /// <summary>
+        /// Returns the BuildTargetGroup for a given BuildTarget. Use this instead of
+        /// NamedBuildTarget (Unity 2021.2+) for 2020.2 compatibility.
+        /// </summary>
+        public static BuildTargetGroup GetTargetGroupForBuildTarget(BuildTarget target)
         {
-            return NamedBuildTarget.FromBuildTargetGroup(GetTargetGroup(target));
+            return GetTargetGroup(target);
         }
 
-        public static string TryResolveNamedBuildTarget(string name, out NamedBuildTarget namedTarget)
+        public static string TryResolveTargetGroup(string name, out BuildTargetGroup targetGroup)
         {
             if (!TryResolveBuildTarget(name, out var buildTarget))
             {
-                namedTarget = default;
+                targetGroup = BuildTargetGroup.Unknown;
                 return GetUnknownBuildTargetMessage(name);
             }
 
-            var targetGroup = GetTargetGroup(buildTarget);
+            targetGroup = GetTargetGroup(buildTarget);
             if (targetGroup == BuildTargetGroup.Unknown)
             {
-                namedTarget = default;
                 return IsVisionOSTarget(buildTarget)
                     ? "VisionOS build target is available, but its BuildTargetGroup is not exposed by this Unity editor installation."
                     : $"Build target group could not be resolved for target '{buildTarget}'.";
             }
 
-            namedTarget = NamedBuildTarget.FromBuildTargetGroup(targetGroup);
             return null;
         }
 
@@ -154,12 +156,16 @@ namespace MCPForUnity.Editor.Tools.Build
 
         public static int ResolveSubtarget(string subtarget)
         {
+#if UNITY_2021_2_OR_NEWER
             if (string.IsNullOrEmpty(subtarget))
                 return (int)StandaloneBuildSubtarget.Player;
             string lower = subtarget.ToLowerInvariant();
             if (lower == "server")
                 return (int)StandaloneBuildSubtarget.Server;
             return (int)StandaloneBuildSubtarget.Player;
+#else
+            return 0; // Subtarget not supported before Unity 2021.2
+#endif
         }
     }
 }

@@ -151,6 +151,7 @@ namespace MCPForUnity.Editor.Setup
         {
             entryPath = entryPath.Replace('\\', '/');
 
+#if UNITY_2021_2_OR_NEWER
             using (var stream = new MemoryStream(zipBytes))
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
             {
@@ -167,6 +168,93 @@ namespace MCPForUnity.Editor.Setup
                     }
                 }
             }
+#else
+            // Minimal ZIP reader for Unity < 2021.2 (no System.IO.Compression.ZipArchive)
+            using (var ms = new MemoryStream(zipBytes))
+            using (var reader = new System.IO.BinaryReader(ms))
+            {
+                // Find End of Central Directory Record (signature: 0x06054b50)
+                long eocdPos = -1;
+                for (long i = ms.Length - 22; i >= 0; i--)
+                {
+                    ms.Position = i;
+                    if (reader.ReadUInt32() == 0x06054b50)
+                    {
+                        eocdPos = i;
+                        break;
+                    }
+                }
+                if (eocdPos < 0) return null;
+
+                ms.Position = eocdPos + 16; // skip to central directory offset
+                uint cdSize = reader.ReadUInt32();
+                uint cdOffset = reader.ReadUInt32();
+
+                // Parse central directory to find entry
+                ms.Position = cdOffset;
+                long cdEnd = cdOffset + cdSize;
+                uint targetLocalOffset = 0;
+                ushort targetMethod = 0;
+                uint targetCompressedSize = 0;
+
+                while (ms.Position < cdEnd)
+                {
+                    if (reader.ReadUInt32() != 0x02014b50) break;
+                    ms.Position += 6; // skip version, flags
+                    ushort method = reader.ReadUInt16();
+                    ms.Position += 12; // skip time, date, crc, sizes
+                    uint compSize = reader.ReadUInt32();
+                    uint uncompSize = reader.ReadUInt32();
+                    ushort nameLen = reader.ReadUInt16();
+                    ushort extraLen = reader.ReadUInt16();
+                    ushort commentLen = reader.ReadUInt16();
+                    ms.Position += 8; // skip disk, attrs
+                    uint localOffset = reader.ReadUInt32();
+                    byte[] nameBytes = reader.ReadBytes(nameLen);
+                    ms.Position += extraLen + commentLen;
+
+                    string name = System.Text.Encoding.UTF8.GetString(nameBytes).Replace('\\', '/');
+                    if (name.Equals(entryPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        targetLocalOffset = localOffset;
+                        targetMethod = method;
+                        targetCompressedSize = compSize;
+                        break;
+                    }
+                }
+
+                if (targetCompressedSize == 0 && targetMethod == 0) return null;
+
+                // Read local file header
+                ms.Position = targetLocalOffset;
+                if (reader.ReadUInt32() != 0x04034b50) return null;
+                ms.Position += 4; // skip version, flags
+                ushort localMethod = reader.ReadUInt16();
+                ms.Position += 12; // skip time, date, crc, sizes
+                uint localCompSize = reader.ReadUInt32();
+                uint localUncompSize = reader.ReadUInt32();
+                ushort localNameLen = reader.ReadUInt16();
+                ushort localExtraLen = reader.ReadUInt16();
+                ms.Position += localNameLen + localExtraLen;
+
+                byte[] data = reader.ReadBytes((int)localCompSize);
+
+                if (localMethod == 0) // stored
+                    return data;
+                else if (localMethod == 8) // deflate
+                {
+                    using (var deflateStream = new System.IO.Compression.DeflateStream(
+                        new MemoryStream(data), System.IO.Compression.CompressionMode.Decompress))
+                    using (var output = new MemoryStream())
+                    {
+                        deflateStream.CopyTo(output);
+                        return output.ToArray();
+                    }
+                }
+
+                return null;
+            }
+#endif
 
             return null;
         }

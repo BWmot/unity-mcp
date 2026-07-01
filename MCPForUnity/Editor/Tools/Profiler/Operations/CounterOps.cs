@@ -117,7 +117,11 @@ namespace MCPForUnity.Editor.Tools.Profiler
 #endif
             "Animation",
             "Audio", "Lighting", "Network", "Gui", "UI", "Ai", "Video",
-            "Loading", "Input", "Vr", "Internal", "Particles", "FileIO", "VirtualTexturing"
+            "Loading", "Input", "Vr", "Internal", "Particles",
+#if UNITY_2021_2_OR_NEWER
+            "FileIO",
+#endif
+            "VirtualTexturing"
         };
 
         internal static ProfilerCategory? ResolveCategory(string name, out string error)
@@ -144,7 +148,9 @@ namespace MCPForUnity.Editor.Tools.Profiler
                 case "vr": return ProfilerCategory.Vr;
                 case "internal": return ProfilerCategory.Internal;
                 case "particles": return ProfilerCategory.Particles;
+#if UNITY_2021_2_OR_NEWER
                 case "fileio": return ProfilerCategory.FileIO;
+#endif
                 case "virtualtexturing": return ProfilerCategory.VirtualTexturing;
                 default:
                     error = $"Unknown category '{name}'. Valid: {string.Join(", ", ValidCategories)}";

@@ -93,6 +93,7 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                     }
                     else
                     {
+#if UNITY_2021_2_OR_NEWER
                         var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
                         if (prefabStage != null || searchInactive)
                         {
@@ -106,6 +107,19 @@ namespace MCPForUnity.Editor.Tools.GameObjects
                                 }
                             }
                         }
+#else
+                        if (searchInactive)
+                        {
+                            var allObjects = GetAllSceneObjects(searchInactive);
+                            foreach (var go in allObjects)
+                            {
+                                if (GameObjectLookup.MatchesPath(go, searchTerm))
+                                {
+                                    results.Add(go);
+                                }
+                            }
+                        }
+#endif
                         else
                         {
                             var found = GameObject.Find(searchTerm);

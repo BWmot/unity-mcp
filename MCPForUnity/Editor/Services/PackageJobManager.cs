@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using MCPForUnity.Editor.Helpers;
@@ -31,8 +31,8 @@ namespace MCPForUnity.Editor.Services
         private const int MaxJobsToKeep = 10;
         private const long DomainReloadTimeoutMs = 120_000;
 
-        private static readonly object LockObj = new();
-        private static readonly Dictionary<string, PackageJob> Jobs = new();
+        private static readonly object LockObj = new object();
+        private static readonly Dictionary<string, PackageJob> Jobs = new Dictionary<string, PackageJob>();
 
         static PackageJobManager()
         {
@@ -128,7 +128,7 @@ namespace MCPForUnity.Editor.Services
             try
             {
                 string packageName = ExtractPackageName(job.Package);
-                var allPackages = PackageInfo.GetAllRegisteredPackages();
+                var allPackages = GetAllRegisteredPackagesCompat();
                 var info = FindPackageInfo(allPackages, packageName, job.Package);
 
                 if (job.Operation == "add" || job.Operation == "embed")
@@ -214,7 +214,7 @@ namespace MCPForUnity.Editor.Services
             if (atIndex > 0)
                 return packageIdentifier.Substring(0, atIndex);
 
-            // Git URLs and file: paths — can't reliably extract name, return as-is
+            // Git URLs and file: paths …can't reliably extract name, return as-is
             return packageIdentifier;
         }
 
@@ -340,6 +340,24 @@ namespace MCPForUnity.Editor.Services
                 result_version = job.ResultVersion,
                 result_name = job.ResultName
             };
+        }
+
+        /// <summary>
+        /// Compatibility wrapper for PackageInfo.GetAllRegisteredPackages() (Unity 2021.2+).
+        /// Falls back to scanning package.json files in Packages/ for older Unity versions.
+        /// </summary>
+        internal static PackageInfo[] GetAllRegisteredPackagesCompat()
+        {
+#if UNITY_2021_2_OR_NEWER
+            return PackageInfo.GetAllRegisteredPackages();
+#else
+            return AssetDatabase.FindAssets("package", new[] { "Packages" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(p => p.EndsWith("package.json"))
+                .Select(p => PackageInfo.FindForAssetPath(p))
+                .Where(p => p != null)
+                .ToArray();
+#endif
         }
     }
 }
