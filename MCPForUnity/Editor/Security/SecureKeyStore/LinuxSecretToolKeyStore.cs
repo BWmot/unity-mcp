@@ -17,7 +17,7 @@ namespace MCPForUnity.Editor.Security
             try
             {
                 var psi = NewPsi();
-                psi.ArgumentList.Add("--version");
+                psi.Arguments = "secret-tool --version";
                 using (var p = Process.Start(psi))
                 {
                     p.WaitForExit(2000);
@@ -36,9 +36,7 @@ namespace MCPForUnity.Editor.Security
             try
             {
                 var psi = NewPsi();
-                psi.ArgumentList.Add("lookup");
-                psi.ArgumentList.Add("service"); psi.ArgumentList.Add(Service);
-                psi.ArgumentList.Add("account"); psi.ArgumentList.Add(providerId);
+                psi.Arguments = BuildArgs("lookup", "service", Service, "account", providerId);
                 using (var p = Process.Start(psi))
                 {
                     string outp = p.StandardOutput.ReadToEnd();
@@ -58,10 +56,7 @@ namespace MCPForUnity.Editor.Security
             try
             {
                 var psi = NewPsi(redirectIn: true);
-                psi.ArgumentList.Add("store");
-                psi.ArgumentList.Add("--label=MCPForUnity AssetGen");
-                psi.ArgumentList.Add("service"); psi.ArgumentList.Add(Service);
-                psi.ArgumentList.Add("account"); psi.ArgumentList.Add(providerId);
+                psi.Arguments = BuildArgs("store", "--label=MCPForUnity AssetGen", "service", Service, "account", providerId);
                 using (var p = Process.Start(psi))
                 {
                     p.StandardInput.Write(apiKey);
@@ -78,9 +73,7 @@ namespace MCPForUnity.Editor.Security
             try
             {
                 var psi = NewPsi();
-                psi.ArgumentList.Add("clear");
-                psi.ArgumentList.Add("service"); psi.ArgumentList.Add(Service);
-                psi.ArgumentList.Add("account"); psi.ArgumentList.Add(providerId);
+                psi.Arguments = BuildArgs("clear", "service", Service, "account", providerId);
                 using (var p = Process.Start(psi)) p.WaitForExit(5000);
             }
             catch { /* best effort */ }
@@ -96,8 +89,21 @@ namespace MCPForUnity.Editor.Security
                 RedirectStandardError = true,
                 RedirectStandardInput = redirectIn,
             };
-            psi.ArgumentList.Add("secret-tool");
             return psi;
+        }
+
+        private static string BuildArgs(params string[] args)
+        {
+            if (args == null || args.Length == 0) return string.Empty;
+            string[] quoted = new string[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                string a = args[i] ?? string.Empty;
+                quoted[i] = (a.IndexOf(' ') >= 0 || a.IndexOf('\t') >= 0 || a.IndexOf('"') >= 0)
+                    ? "\"" + a.Replace("\"", "\\\"") + "\""
+                    : a;
+            }
+            return string.Join(" ", quoted);
         }
     }
 }

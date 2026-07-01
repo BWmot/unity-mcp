@@ -56,9 +56,9 @@ namespace MCPForUnity.Editor.Services.AssetGen
         internal static double PollIntervalSeconds = 3.0;
         internal static double TimeoutSeconds = 600.0;
 
-        private static readonly Dictionary<string, AssetGenJob> Jobs = new();
-        private static readonly Dictionary<string, Runner> Runners = new();
-        private static readonly List<string> _tickIds = new();
+        private static readonly Dictionary<string, AssetGenJob> Jobs = new Dictionary<string, AssetGenJob>();
+        private static readonly Dictionary<string, Runner> Runners = new Dictionary<string, Runner>();
+        private static readonly List<string> _tickIds = new List<string>();
         private static bool _ticking;
 
         static AssetGenJobManager()
@@ -216,7 +216,7 @@ namespace MCPForUnity.Editor.Services.AssetGen
             public string Name;
             public string Subfolder;
 
-            public CancellationTokenSource Cts = new();
+            public CancellationTokenSource Cts = new CancellationTokenSource();
             public RunnerPhase Phase = RunnerPhase.Submit;
             public double StartedAt;
             public double NextPollAt;

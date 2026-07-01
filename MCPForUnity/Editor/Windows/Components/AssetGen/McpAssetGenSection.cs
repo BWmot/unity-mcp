@@ -38,13 +38,13 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
         // UI Elements
         private VisualElement providersContainer;
         private VisualElement gltfastNotice;
-        private DropdownField formatDropdown;
+        private TextField formatField;
         private TextField outputRootField;
         private Toggle autoNormalizeToggle;
 
         // Per-provider enable toggles for the GLB-capable (model) providers, used to
         // recompute the glTFast notice when a toggle changes.
-        private readonly List<(string Id, Toggle Toggle)> modelEnableToggles = new();
+        private readonly List<Tuple<string, Toggle>> modelEnableToggles = new List<Tuple<string, Toggle>>();
 
         public VisualElement Root { get; private set; }
 
@@ -60,7 +60,7 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
         {
             providersContainer = Root.Q<VisualElement>("assetgen-providers-container");
             gltfastNotice = Root.Q<VisualElement>("gltfast-notice");
-            formatDropdown = Root.Q<DropdownField>("assetgen-format-dropdown");
+            formatField = Root.Q<TextField>("assetgen-format-dropdown");
             outputRootField = Root.Q<TextField>("assetgen-output-root");
             autoNormalizeToggle = Root.Q<Toggle>("assetgen-auto-normalize");
         }
@@ -68,10 +68,9 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
         private void InitializeUI()
         {
             // One-time choices + tooltips; the field values are populated by SyncFromPrefs.
-            if (formatDropdown != null)
+            if (formatField != null)
             {
-                formatDropdown.choices = new List<string> { "glb", "fbx", "obj" };
-                formatDropdown.tooltip = "Default container format for generated 3D models.";
+                formatField.tooltip = "Default container format for generated 3D models. Allowed values: glb, fbx, obj.";
             }
 
             if (outputRootField != null)
@@ -90,11 +89,12 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
 
         private void RegisterCallbacks()
         {
-            if (formatDropdown != null)
+            if (formatField != null)
             {
-                formatDropdown.RegisterValueChangedCallback(evt =>
+                formatField.RegisterValueChangedCallback(evt =>
                 {
-                    AssetGenPrefs.DefaultFormat = evt.newValue;
+                    AssetGenPrefs.DefaultFormat = NormalizeFormat(evt.newValue);
+                    formatField.SetValueWithoutNotify(AssetGenPrefs.DefaultFormat);
                 });
             }
 
@@ -127,7 +127,7 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
         private void SyncFromPrefs()
         {
             BuildProviderRows();
-            formatDropdown?.SetValueWithoutNotify(NormalizeFormat(AssetGenPrefs.DefaultFormat));
+            formatField?.SetValueWithoutNotify(NormalizeFormat(AssetGenPrefs.DefaultFormat));
             outputRootField?.SetValueWithoutNotify(AssetGenPrefs.OutputRoot);
             autoNormalizeToggle?.SetValueWithoutNotify(AssetGenPrefs.AutoNormalize);
             UpdateGltfastNotice();
@@ -147,7 +147,7 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
             foreach (var provider in ModelProviders)
             {
                 var toggle = AddProviderRow(provider.Id, provider.Label);
-                modelEnableToggles.Add((provider.Id, toggle));
+                modelEnableToggles.Add(new Tuple<string, Toggle>(provider.Id, toggle));
             }
 
             AddGroupLabel("Image Providers");
@@ -359,9 +359,9 @@ namespace MCPForUnity.Editor.Windows.Components.AssetGen
             bool anyGlbProviderEnabled = false;
             foreach (var entry in modelEnableToggles)
             {
-                bool enabled = entry.Toggle != null
-                    ? entry.Toggle.value
-                    : AssetGenPrefs.IsProviderEnabled(entry.Id);
+                bool enabled = entry.Item2 != null
+                    ? entry.Item2.value
+                    : AssetGenPrefs.IsProviderEnabled(entry.Item1);
                 if (enabled)
                 {
                     anyGlbProviderEnabled = true;

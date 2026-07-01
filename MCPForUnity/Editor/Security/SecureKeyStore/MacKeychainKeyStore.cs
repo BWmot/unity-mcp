@@ -49,7 +49,7 @@ namespace MCPForUnity.Editor.Security
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                 };
-                foreach (string a in args) psi.ArgumentList.Add(a);
+                psi.Arguments = JoinArgs(args);
                 using (var p = Process.Start(psi))
                 {
                     string outp = p.StandardOutput.ReadToEnd();
@@ -62,6 +62,20 @@ namespace MCPForUnity.Editor.Security
             {
                 return (-1, null, e.Message);
             }
+        }
+
+        private static string JoinArgs(string[] args)
+        {
+            if (args == null || args.Length == 0) return string.Empty;
+            string[] quoted = new string[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                string a = args[i] ?? string.Empty;
+                quoted[i] = (a.IndexOf(' ') >= 0 || a.IndexOf('\t') >= 0 || a.IndexOf('"') >= 0)
+                    ? "\"" + a.Replace("\"", "\\\"") + "\""
+                    : a;
+            }
+            return string.Join(" ", quoted);
         }
     }
 }

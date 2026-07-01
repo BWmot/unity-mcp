@@ -92,7 +92,7 @@ namespace MCPForUnity.Editor.Security
             byte[] master = LoadOrCreate(Path.Combine(_dir, "secret.bin"), 32);
             byte[] salt = LoadOrCreate(Path.Combine(_dir, "salt.bin"), 16);
             string password = Convert.ToBase64String(master) + "|" + MachineId();
-            using (var kdf = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256))
+            using (var kdf = new Rfc2898DeriveBytes(password, salt, Iterations))
             {
                 byte[] material = kdf.GetBytes(64);
                 encKey = new byte[32];
@@ -210,11 +210,18 @@ namespace MCPForUnity.Editor.Security
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
                 };
-                psi.ArgumentList.Add(mode);
-                psi.ArgumentList.Add(path);
+                psi.Arguments = QuoteArg(mode) + " " + QuoteArg(path);
                 using (var p = System.Diagnostics.Process.Start(psi)) p?.WaitForExit(2000);
             }
             catch { /* hardening is best-effort */ }
+        }
+
+        private static string QuoteArg(string arg)
+        {
+            if (string.IsNullOrEmpty(arg)) return "\"\"";
+            if (arg.IndexOf(' ') >= 0 || arg.IndexOf('\t') >= 0 || arg.IndexOf('"') >= 0)
+                return "\"" + arg.Replace("\"", "\\\"") + "\"";
+            return arg;
         }
     }
 }
