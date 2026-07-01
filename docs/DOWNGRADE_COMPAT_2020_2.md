@@ -420,6 +420,33 @@ using UnityEditor.Experimental.SceneManagement;
 
 ## 8. Roslyn MCP 安装器 ZIP 处理
 
+### 8.1 这次同步后的状态说明
+
+这次从 `origin/beta` 同步并继续做 Unity 2020.2 兼容处理后，`SafeZipExtractor` 相关逻辑采取了**保留但降级**的策略：
+
+- `SafeZipExtractor` 文件继续保留，避免删除后丢失后续功能入口
+- 不再强依赖 `System.IO.Compression.ZipArchive`
+- 在 Unity 2020.2 下优先保证 Editor 侧能正常编译
+- 如果当前环境无法提供稳定 ZIP 解压能力，则明确返回 `NotSupportedException`
+
+### 8.2 设计取舍
+
+这个处理的目标很明确：
+
+- **编译优先**：不让 ZIP 相关 API 成为 Unity 2020.2 的构建阻塞点
+- **功能保留**：类和调用语义先保留，避免一次性删掉造成功能回退
+- **后续可恢复**：若未来确认 Unity 2020.2 可稳定支持 ZIP 处理，再补回真实实现
+
+### 8.3 相关受影响文件
+
+- `MCPForUnity/Editor/Services/AssetGen/Import/SafeZipExtractor.cs`
+- `MCPForUnity/Editor/Services/AssetGen/Import/ModelImportPipeline.cs`
+- `MCPForUnity/Editor/MCPForUnity.Editor.asmdef`
+
+### 8.4 当前结论
+
+当前仓库中的处理原则是：**先保留 `SafeZipExtractor`，只要不阻碍编译即可**。如果后续确认有真实 ZIP 解压调用路径，再针对 Unity 2020.2 继续补齐兼容实现。
+
 ### 问题
 
 `System.IO.Compression.ZipArchive` 在 Unity 2020.2 的 Mono 运行时中不可用。即使添加 `System.IO.Compression.dll` 到 asmdef `precompiledReferences`，类型仍无法解析。
