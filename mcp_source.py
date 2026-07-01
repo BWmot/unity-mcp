@@ -21,7 +21,7 @@ import pathlib
 import subprocess
 import sys
 
-PKG_NAME = "com.coplaydev.unity-mcp"
+PKG_NAME = "com.bwmol.unitymcp2020"
 BRIDGE_SUBPATH = "MCPForUnity"
 
 

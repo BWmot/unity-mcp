@@ -59,7 +59,7 @@ This list is hand-maintained for now. The authoritative count and metadata live 
 
 ## Notes
 
-- `manifest.json` is NOT the Unity UPM manifest. That's `MCPForUnity/package.json` (name: `com.coplaydev.unity-mcp`).
+- `manifest.json` is NOT the Unity UPM manifest. That's `MCPForUnity/package.json` (name: `com.bwmol.unitymcp2020`).
 - The Python PyPI package metadata lives in `Server/pyproject.toml` (name: `mcpforunityserver`).
 - All three — `manifest.json`, `package.json`, `pyproject.toml` — are independent surfaces with overlapping but non-identical fields. A rename touches all three.
 - An MCPB bundle is produced from `manifest.json` via [`tools/generate_mcpb.py`](https://github.com/CoplayDev/unity-mcp/blob/beta/tools/generate_mcpb.py).

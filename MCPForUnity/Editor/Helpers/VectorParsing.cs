@@ -34,7 +34,7 @@ namespace MCPForUnity.Editor.Helpers
                 }
 
                 // Object format: {x: 1, y: 2, z: 3}
-                if (token is JObject obj && obj.ContainsKey("x") && obj.ContainsKey("y") && obj.ContainsKey("z"))
+                if (token is JObject obj && obj["x"] != null && obj["y"] != null && obj["z"] != null)
                 {
                     return new Vector3(
                         obj["x"].ToObject<float>(),
@@ -81,7 +81,7 @@ namespace MCPForUnity.Editor.Helpers
                 }
 
                 // Object format: {x: 1, y: 2}
-                if (token is JObject obj && obj.ContainsKey("x") && obj.ContainsKey("y"))
+                if (token is JObject obj && obj["x"] != null && obj["y"] != null)
                 {
                     return new Vector2(
                         obj["x"].ToObject<float>(),
@@ -121,8 +121,8 @@ namespace MCPForUnity.Editor.Helpers
                 }
 
                 // Object format: {x: 1, y: 2, z: 3, w: 4}
-                if (token is JObject obj && obj.ContainsKey("x") && obj.ContainsKey("y") && 
-                    obj.ContainsKey("z") && obj.ContainsKey("w"))
+                if (token is JObject obj && obj["x"] != null && obj["y"] != null && 
+                    obj["z"] != null && obj["w"] != null)
                 {
                     return new Vector4(
                         obj["x"].ToObject<float>(),
@@ -183,7 +183,7 @@ namespace MCPForUnity.Editor.Helpers
                 // Object format: {x: 0, y: 0, z: 0, w: 1}
                 if (token is JObject obj)
                 {
-                    if (obj.ContainsKey("x") && obj.ContainsKey("y") && obj.ContainsKey("z") && obj.ContainsKey("w"))
+                    if (obj["x"] != null && obj["y"] != null && obj["z"] != null && obj["w"] != null)
                     {
                         return new Quaternion(
                             obj["x"].ToObject<float>(),
@@ -194,7 +194,7 @@ namespace MCPForUnity.Editor.Helpers
                     }
 
                     // Euler format in object: {x: 45, y: 90, z: 0} (as euler angles)
-                    if (obj.ContainsKey("x") && obj.ContainsKey("y") && obj.ContainsKey("z") && asEulerAngles)
+                    if (obj["x"] != null && obj["y"] != null && obj["z"] != null && asEulerAngles)
                     {
                         return Quaternion.Euler(
                             obj["x"].ToObject<float>(),
@@ -249,9 +249,9 @@ namespace MCPForUnity.Editor.Helpers
                 }
 
                 // Object format: {r: 1, g: 1, b: 1, a: 1}
-                if (token is JObject obj && obj.ContainsKey("r") && obj.ContainsKey("g") && obj.ContainsKey("b"))
+                if (token is JObject obj && obj["r"] != null && obj["g"] != null && obj["b"] != null)
                 {
-                    float a = obj.ContainsKey("a") ? obj["a"].ToObject<float>() : 1f;
+                    float a = obj["a"] != null ? obj["a"].ToObject<float>() : 1f;
                     return new Color(
                         obj["r"].ToObject<float>(),
                         obj["g"].ToObject<float>(),
@@ -308,7 +308,7 @@ namespace MCPForUnity.Editor.Helpers
                 if (token is JObject obj)
                 {
                     // Simple format: {startColor: ..., endColor: ...}
-                    if (obj.ContainsKey("startColor"))
+                    if (obj["startColor"] != null)
                     {
                         Color startColor = ParseColorOrDefault(obj["startColor"]);
                         Color endColor = ParseColorOrDefault(obj["endColor"] ?? obj["startColor"]);
@@ -443,7 +443,7 @@ namespace MCPForUnity.Editor.Helpers
                     }
 
                     // Simple format: {start: 0.0, end: 1.0} or {startValue: 0.0, endValue: 1.0}
-                    if (obj.ContainsKey("start") || obj.ContainsKey("startValue") || obj.ContainsKey("end") || obj.ContainsKey("endValue"))
+                    if (obj["start"] != null || obj["startValue"] != null || obj["end"] != null || obj["endValue"] != null)
                     {
                         float startValue = obj["start"]?.ToObject<float>() ?? obj["startValue"]?.ToObject<float>() ?? 1f;
                         float endValue = obj["end"]?.ToObject<float>() ?? obj["endValue"]?.ToObject<float>() ?? 1f;
@@ -671,8 +671,8 @@ namespace MCPForUnity.Editor.Helpers
             try
             {
                 if (token is JObject obj && 
-                    obj.ContainsKey("x") && obj.ContainsKey("y") && 
-                    obj.ContainsKey("width") && obj.ContainsKey("height"))
+                    obj["x"] != null && obj["y"] != null && 
+                    obj["width"] != null && obj["height"] != null)
                 {
                     return new Rect(
                         obj["x"].ToObject<float>(),
@@ -712,7 +712,7 @@ namespace MCPForUnity.Editor.Helpers
 
             try
             {
-                if (token is JObject obj && obj.ContainsKey("center") && obj.ContainsKey("size"))
+                if (token is JObject obj && obj["center"] != null && obj["size"] != null)
                 {
                     var center = ParseVector3(obj["center"]) ?? Vector3.zero;
                     var size = ParseVector3(obj["size"]) ?? Vector3.zero;
@@ -728,4 +728,5 @@ namespace MCPForUnity.Editor.Helpers
         }
     }
 }
+
 

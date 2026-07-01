@@ -52,6 +52,7 @@ namespace MCPForUnity.Editor.Windows
         private const double RefreshDebounceSeconds = 0.5;
         private bool updateCheckQueued = false;
         private bool updateCheckInFlight = false;
+        private static MCPForUnityEditorWindow lastFocusedWindowInstance;
 
         private enum ActivePanel
         {
@@ -546,6 +547,7 @@ namespace MCPForUnity.Editor.Windows
 
         private void OnFocus()
         {
+            lastFocusedWindowInstance = this;
             // Only refresh data if UI is built
             if (rootVisualElement == null || rootVisualElement.childCount == 0)
                 return;
@@ -745,6 +747,7 @@ namespace MCPForUnity.Editor.Windows
                 {
                     installAllButton.SetEnabled(true);
                     installAllButton.text = "Install All";
+                    lastFocusedWindowInstance?.Repaint();
                 });
             });
             installAllButton.text = "Install All";

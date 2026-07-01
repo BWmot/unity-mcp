@@ -52,7 +52,7 @@ Control the Unity Editor in natural language from any MCP client — create scen
 **Requirements:** Unity **2021.3 LTS → 6.x** · Python **3.10+** (via [`uv`](https://docs.astral.sh/uv/)). Works with **any MCP client** — Claude Desktop & Code, Cursor, VS Code, Windsurf, Cline, Gemini CLI, and more.
 
 1. **Install** — Unity → Package Manager → Add from git URL:
-   `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main` &nbsp;_(pin `#v10.0.0` for this release, or `openupm add com.coplaydev.unity-mcp`)_
+   `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main` &nbsp;_(pin `#v10.0.0` for this release, or `openupm add com.bwmol.unitymcp2020`)_
 2. **Configure** — `Window → MCP for Unity → Configure All Detected Clients`.
 3. **Prompt** — *"Create a cube at the origin and add a Rigidbody."* The cube appears in seconds.
 

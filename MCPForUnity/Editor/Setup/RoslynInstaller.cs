@@ -169,90 +169,75 @@ namespace MCPForUnity.Editor.Setup
                 }
             }
 #else
-            // Minimal ZIP reader for Unity < 2021.2 (no System.IO.Compression.ZipArchive)
+            // Minimal ZIP reader for Unity < 2021.2
+            // Scan local file headers sequentially and extract the target entry.
             using (var ms = new MemoryStream(zipBytes))
-            using (var reader = new System.IO.BinaryReader(ms))
+            using (var reader = new BinaryReader(ms))
             {
-                // Find End of Central Directory Record (signature: 0x06054b50)
-                long eocdPos = -1;
-                for (long i = ms.Length - 22; i >= 0; i--)
+                while (ms.Position + 30 <= ms.Length)
                 {
-                    ms.Position = i;
-                    if (reader.ReadUInt32() == 0x06054b50)
-                    {
-                        eocdPos = i;
+                    uint sig = reader.ReadUInt32();
+                    if (sig != 0x04034b50)
                         break;
-                    }
-                }
-                if (eocdPos < 0) return null;
 
-                ms.Position = eocdPos + 16; // skip to central directory offset
-                uint cdSize = reader.ReadUInt32();
-                uint cdOffset = reader.ReadUInt32();
-
-                // Parse central directory to find entry
-                ms.Position = cdOffset;
-                long cdEnd = cdOffset + cdSize;
-                uint targetLocalOffset = 0;
-                ushort targetMethod = 0;
-                uint targetCompressedSize = 0;
-
-                while (ms.Position < cdEnd)
-                {
-                    if (reader.ReadUInt32() != 0x02014b50) break;
-                    ms.Position += 6; // skip version, flags
+                    ushort version = reader.ReadUInt16();
+                    ushort flags = reader.ReadUInt16();
                     ushort method = reader.ReadUInt16();
-                    ms.Position += 12; // skip time, date, crc, sizes
+                    ushort modTime = reader.ReadUInt16();
+                    ushort modDate = reader.ReadUInt16();
+                    uint crc32 = reader.ReadUInt32();
                     uint compSize = reader.ReadUInt32();
                     uint uncompSize = reader.ReadUInt32();
                     ushort nameLen = reader.ReadUInt16();
                     ushort extraLen = reader.ReadUInt16();
-                    ushort commentLen = reader.ReadUInt16();
-                    ms.Position += 8; // skip disk, attrs
-                    uint localOffset = reader.ReadUInt32();
+
+                    if (nameLen == 0 || ms.Position + nameLen + extraLen > ms.Length)
+                        return null;
+
                     byte[] nameBytes = reader.ReadBytes(nameLen);
-                    ms.Position += extraLen + commentLen;
+                    ms.Position += extraLen;
 
                     string name = System.Text.Encoding.UTF8.GetString(nameBytes).Replace('\\', '/');
-                    if (name.Equals(entryPath, StringComparison.OrdinalIgnoreCase))
+                    string safeName = name.TrimStart('/');
+
+                    bool isTarget = safeName.Equals(entryPath, StringComparison.OrdinalIgnoreCase);
+                    if (!isTarget)
                     {
-                        targetLocalOffset = localOffset;
-                        targetMethod = method;
-                        targetCompressedSize = compSize;
-                        break;
+                        if (compSize > 0)
+                        {
+                            if (ms.Position + compSize > ms.Length)
+                                return null;
+                            ms.Position += compSize;
+                        }
+                        else
+                        {
+                            // ZIP entry with data descriptor or unknown size is not supported here
+                            return null;
+                        }
+                        continue;
                     }
-                }
 
-                if (targetCompressedSize == 0 && targetMethod == 0) return null;
+                    if (compSize == 0 || ms.Position + compSize > ms.Length)
+                        return null;
 
-                // Read local file header
-                ms.Position = targetLocalOffset;
-                if (reader.ReadUInt32() != 0x04034b50) return null;
-                ms.Position += 4; // skip version, flags
-                ushort localMethod = reader.ReadUInt16();
-                ms.Position += 12; // skip time, date, crc, sizes
-                uint localCompSize = reader.ReadUInt32();
-                uint localUncompSize = reader.ReadUInt32();
-                ushort localNameLen = reader.ReadUInt16();
-                ushort localExtraLen = reader.ReadUInt16();
-                ms.Position += localNameLen + localExtraLen;
+                    byte[] data = reader.ReadBytes((int)compSize);
 
-                byte[] data = reader.ReadBytes((int)localCompSize);
+                    if (method == 0) // stored
+                        return data;
 
-                if (localMethod == 0) // stored
-                    return data;
-                else if (localMethod == 8) // deflate
-                {
-                    using (var deflateStream = new System.IO.Compression.DeflateStream(
-                        new MemoryStream(data), System.IO.Compression.CompressionMode.Decompress))
-                    using (var output = new MemoryStream())
+                    if (method == 8) // deflate
                     {
-                        deflateStream.CopyTo(output);
-                        return output.ToArray();
+                        using (var deflateStream = new System.IO.Compression.DeflateStream(
+                       new MemoryStream(data), System.IO.Compression.CompressionMode.Decompress))
+                        using (var output = new MemoryStream())
+                        {
+                            deflateStream.CopyTo(output);
+                            return output.ToArray();
+                        }
                     }
-                }
 
-                return null;
+                    return null;
+                }
             }
 #endif
 

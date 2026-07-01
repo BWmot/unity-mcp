@@ -76,7 +76,7 @@ When testing Unity package changes, prefer **Local workspace**. Do not patch `Li
 Example Git package lock entry:
 
 ```json
-"com.coplaydev.unity-mcp": {
+"com.bwmol.unitymcp2020": {
   "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#beta",
   "source": "git",
   "hash": "<resolved-git-commit>"
@@ -237,7 +237,7 @@ For compatibility PRs, note the exact editor versions you tested in the PR body.
 
 ## Troubleshooting During Development
 
-- **Unity still loads an old Git package**: close Unity, check `Packages/packages-lock.json`, then refresh Package Manager. If needed, remove only the stale `Library/PackageCache/com.coplaydev.unity-mcp@<hash>` folder while Unity is closed.
+- **Unity still loads an old Git package**: close Unity, check `Packages/packages-lock.json`, then refresh Package Manager. If needed, remove only the stale `Library/PackageCache/com.bwmol.unitymcp2020@<hash>` folder while Unity is closed.
 - **Unity opens in Safe Mode after changing package source**: the package failed to compile before MCP can start. Fix the compile errors first; the MCP server cannot recover from package compile failures.
 - **Server changes are not picked up**: make sure **Server Source Override** points to your local `Server/` directory and **Dev Mode (Force fresh server install)** is enabled.
 - **Stdio tool visibility looks stale**: call `manage_tools(action="sync")` or restart the MCP session. HTTP mode can push `tools/list_changed` notifications automatically.

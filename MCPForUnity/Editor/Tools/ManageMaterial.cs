@@ -100,7 +100,7 @@ namespace MCPForUnity.Editor.Tools
             if (value.Type == JTokenType.Object)
             {
                 // Check if it looks like an instruction
-                if (value is JObject obj && (obj.ContainsKey("find") || obj.ContainsKey("method")))
+                if (value is JObject obj && (obj["find"] != null || obj["method"] != null))
                 {
                     Texture tex = ObjectResolver.Resolve(obj, typeof(Texture)) as Texture;
                     if (tex != null && mat.HasProperty(property))
@@ -422,7 +422,7 @@ namespace MCPForUnity.Editor.Tools
             matPath = AssetPathUtility.SanitizeAssetPath(matPath);
             if (matPath == null)
             {
-                return new ErrorResponse($"Invalid GameObject name '{go.name}' â€” cannot build a safe material path.");
+                return new ErrorResponse($"Invalid GameObject name '{go.name}' â€?cannot build a safe material path.");
             }
 
             // Ensure the Materials directory exists (recursive)
@@ -431,7 +431,7 @@ namespace MCPForUnity.Editor.Tools
             Material existing = AssetDatabase.LoadAssetAtPath<Material>(matPath);
             if (existing != null)
             {
-                // Material already exists (e.g. retry) â€” update its color and re-assign
+                // Material already exists (e.g. retry) â€?update its color and re-assign
                 Undo.RecordObject(existing, "Update unique material color");
                 SetColorProperties(existing, color);
                 EditorUtility.SetDirty(existing);
@@ -647,12 +647,12 @@ namespace MCPForUnity.Editor.Tools
                     else if (!string.IsNullOrEmpty(colorProperty))
                     {
                         // If colorProperty is specified, only check that specific property.
-                        shouldApplyColor = !properties.ContainsKey(colorProperty);
+                        shouldApplyColor = properties[colorProperty] == null;
                     }
                     else
                     {
                         // If colorProperty is not specified, check fallback properties.
-                        shouldApplyColor = !properties.ContainsKey("_BaseColor") && !properties.ContainsKey("_Color");
+                        shouldApplyColor = properties["_BaseColor"] == null && properties["_Color"] == null;
                     }
                 }
 
@@ -716,3 +716,4 @@ namespace MCPForUnity.Editor.Tools
         }
     }
 }
+

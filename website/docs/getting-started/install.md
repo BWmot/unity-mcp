@@ -39,7 +39,7 @@ https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#beta
 ## Option 3 — OpenUPM
 
 ```bash
-openupm add com.coplaydev.unity-mcp
+openupm add com.bwmol.unitymcp2020
 ```
 
 ## Start the server and connect

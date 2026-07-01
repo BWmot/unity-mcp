@@ -10,7 +10,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
 {
     internal static class CameraConfigure
     {
-        #region Tier 1 â€” Basic Camera
+        #region Tier 1 â€?Basic Camera
 
         internal static object SetBasicCameraTarget(JObject @params)
         {
@@ -95,7 +95,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
 
         #endregion
 
-        #region Tier 2 â€” Cinemachine
+        #region Tier 2 â€?Cinemachine
 
         internal static object SetCinemachineTarget(JObject @params)
         {
@@ -106,9 +106,9 @@ namespace MCPForUnity.Editor.Tools.Cameras
 
             Undo.RecordObject(cmCamera, "Set Cinemachine Target");
 
-            if (props.ContainsKey("follow"))
+            if (props["follow"] != null)
                 CameraHelpers.SetTransformTarget(cmCamera, "Follow", props["follow"]);
-            if (props.ContainsKey("lookAt") || props.ContainsKey("look_at"))
+            if (props["lookAt"] != null || props["look_at"] != null)
                 CameraHelpers.SetTransformTarget(cmCamera, "LookAt", props["lookAt"] ?? props["look_at"]);
 
             CameraHelpers.MarkDirty(cmCamera.gameObject);
@@ -129,7 +129,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
             var props = CameraHelpers.ExtractProperties(@params) ?? new JObject();
             Undo.RecordObject(cmCamera, "Set Cinemachine Lens");
 
-            // Lens is a struct field â€” use SerializedProperty for reliable setting
+            // Lens is a struct field â€?use SerializedProperty for reliable setting
             using var so = new SerializedObject(cmCamera);
             var lensProp = so.FindProperty("Lens") ?? so.FindProperty("m_Lens");
             if (lensProp == null)
@@ -160,7 +160,7 @@ namespace MCPForUnity.Editor.Tools.Cameras
             var props = CameraHelpers.ExtractProperties(@params) ?? new JObject();
             int priority = ParamCoercion.CoerceInt(props["priority"], 10);
 
-            // PrioritySettings is a struct with Enabled + m_Value â€” use SerializedProperty
+            // PrioritySettings is a struct with Enabled + m_Value â€?use SerializedProperty
             using var so = new SerializedObject(cmCamera);
             var priorityProp = so.FindProperty("Priority");
             if (priorityProp != null)

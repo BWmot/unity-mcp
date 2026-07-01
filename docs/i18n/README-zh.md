@@ -50,7 +50,7 @@
 **环境要求：** Unity **2021.3 LTS → 6.x** · Python **3.10+**（用 [`uv`](https://docs.astral.sh/uv/) 管理）。兼容**任意 MCP 客户端**——Claude Desktop 与 Claude Code、Cursor、VS Code、Windsurf、Cline、Gemini CLI 等等。
 
 1. **安装** —— 在 Unity 里打开 Package Manager，从 git URL 添加：
-   `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main` &nbsp;_（如需固定本次发布，可用 `#v10.0.0`；也可以用 `openupm add com.coplaydev.unity-mcp`）_
+   `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main` &nbsp;_（如需固定本次发布，可用 `#v10.0.0`；也可以用 `openupm add com.bwmol.unitymcp2020`）_
 2. **配置客户端** —— `Window → MCP for Unity → Configure All Detected Clients`，一键搞定所有检测到的客户端。
 3. **发个提示试试** —— *"在原点放一个立方体，加个 Rigidbody。"* 立方体几秒就出现在场景里了。
 

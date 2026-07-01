@@ -9,21 +9,24 @@ using UnityEditor; // Required for AssetDatabase and EditorUtility
 
 namespace MCPForUnity.Runtime.Serialization
 {
-    public class Vector3Converter : JsonConverter<Vector3>
+    public class Vector3Converter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Vector3 value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Vector3);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Vector3 v = (Vector3)value;
             writer.WriteStartObject();
             writer.WritePropertyName("x");
-            writer.WriteValue(value.x);
+            writer.WriteValue(v.x);
             writer.WritePropertyName("y");
-            writer.WriteValue(value.y);
+            writer.WriteValue(v.y);
             writer.WritePropertyName("z");
-            writer.WriteValue(value.z);
+            writer.WriteValue(v.z);
             writer.WriteEndObject();
         }
 
-        public override Vector3 ReadJson(JsonReader reader, Type objectType, Vector3 existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             if (token is JArray arr && arr.Count >= 3)
@@ -38,19 +41,22 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class Vector2Converter : JsonConverter<Vector2>
+    public class Vector2Converter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Vector2 value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Vector2);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Vector2 v = (Vector2)value;
             writer.WriteStartObject();
             writer.WritePropertyName("x");
-            writer.WriteValue(value.x);
+            writer.WriteValue(v.x);
             writer.WritePropertyName("y");
-            writer.WriteValue(value.y);
+            writer.WriteValue(v.y);
             writer.WriteEndObject();
         }
 
-        public override Vector2 ReadJson(JsonReader reader, Type objectType, Vector2 existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             if (token is JArray arr && arr.Count >= 2)
@@ -64,23 +70,26 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class QuaternionConverter : JsonConverter<Quaternion>
+    public class QuaternionConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Quaternion value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Quaternion);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Quaternion q = (Quaternion)value;
             writer.WriteStartObject();
             writer.WritePropertyName("x");
-            writer.WriteValue(value.x);
+            writer.WriteValue(q.x);
             writer.WritePropertyName("y");
-            writer.WriteValue(value.y);
+            writer.WriteValue(q.y);
             writer.WritePropertyName("z");
-            writer.WriteValue(value.z);
+            writer.WriteValue(q.z);
             writer.WritePropertyName("w");
-            writer.WriteValue(value.w);
+            writer.WriteValue(q.w);
             writer.WriteEndObject();
         }
 
-        public override Quaternion ReadJson(JsonReader reader, Type objectType, Quaternion existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             if (token is JArray arr && arr.Count >= 4)
@@ -96,23 +105,26 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class ColorConverter : JsonConverter<Color>
+    public class ColorConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Color value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Color);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Color c = (Color)value;
             writer.WriteStartObject();
             writer.WritePropertyName("r");
-            writer.WriteValue(value.r);
+            writer.WriteValue(c.r);
             writer.WritePropertyName("g");
-            writer.WriteValue(value.g);
+            writer.WriteValue(c.g);
             writer.WritePropertyName("b");
-            writer.WriteValue(value.b);
+            writer.WriteValue(c.b);
             writer.WritePropertyName("a");
-            writer.WriteValue(value.a);
+            writer.WriteValue(c.a);
             writer.WriteEndObject();
         }
 
-        public override Color ReadJson(JsonReader reader, Type objectType, Color existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
             return new Color(
@@ -124,23 +136,26 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class RectConverter : JsonConverter<Rect>
+    public class RectConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Rect value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Rect);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Rect r = (Rect)value;
             writer.WriteStartObject();
             writer.WritePropertyName("x");
-            writer.WriteValue(value.x);
+            writer.WriteValue(r.x);
             writer.WritePropertyName("y");
-            writer.WriteValue(value.y);
+            writer.WriteValue(r.y);
             writer.WritePropertyName("width");
-            writer.WriteValue(value.width);
+            writer.WriteValue(r.width);
             writer.WritePropertyName("height");
-            writer.WriteValue(value.height);
+            writer.WriteValue(r.height);
             writer.WriteEndObject();
         }
 
-        public override Rect ReadJson(JsonReader reader, Type objectType, Rect existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
             return new Rect(
@@ -152,19 +167,22 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class BoundsConverter : JsonConverter<Bounds>
+    public class BoundsConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Bounds value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Bounds);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Bounds b = (Bounds)value;
             writer.WriteStartObject();
             writer.WritePropertyName("center");
-            serializer.Serialize(writer, value.center); // Use serializer to handle nested Vector3
+            serializer.Serialize(writer, b.center); // Use serializer to handle nested Vector3
             writer.WritePropertyName("size");
-            serializer.Serialize(writer, value.size);   // Use serializer to handle nested Vector3
+            serializer.Serialize(writer, b.size);   // Use serializer to handle nested Vector3
             writer.WriteEndObject();
         }
 
-        public override Bounds ReadJson(JsonReader reader, Type objectType, Bounds existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
             Vector3 center = jo["center"].ToObject<Vector3>(serializer); // Use serializer to handle nested Vector3
@@ -173,23 +191,26 @@ namespace MCPForUnity.Runtime.Serialization
         }
     }
 
-    public class Vector4Converter : JsonConverter<Vector4>
+    public class Vector4Converter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Vector4 value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Vector4);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Vector4 v = (Vector4)value;
             writer.WriteStartObject();
             writer.WritePropertyName("x");
-            writer.WriteValue(value.x);
+            writer.WriteValue(v.x);
             writer.WritePropertyName("y");
-            writer.WriteValue(value.y);
+            writer.WriteValue(v.y);
             writer.WritePropertyName("z");
-            writer.WriteValue(value.z);
+            writer.WriteValue(v.z);
             writer.WritePropertyName("w");
-            writer.WriteValue(value.w);
+            writer.WriteValue(v.w);
             writer.WriteEndObject();
         }
 
-        public override Vector4 ReadJson(JsonReader reader, Type objectType, Vector4 existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             if (token is JArray arr && arr.Count >= 4)
@@ -211,32 +232,35 @@ namespace MCPForUnity.Runtime.Serialization
     /// and can crash Unity on non-TRS matrices (common in Cinemachine components).
     /// Fixes: https://github.com/CoplayDev/unity-mcp/issues/478
     /// </summary>
-    public class Matrix4x4Converter : JsonConverter<Matrix4x4>
+    public class Matrix4x4Converter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, Matrix4x4 value, JsonSerializer serializer)
+        public override bool CanConvert(Type objectType) => objectType == typeof(Matrix4x4);
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            Matrix4x4 m = (Matrix4x4)value;
             writer.WriteStartObject();
             // Only access raw matrix elements - NEVER computed properties like lossyScale/rotation
-            writer.WritePropertyName("m00"); writer.WriteValue(value.m00);
-            writer.WritePropertyName("m01"); writer.WriteValue(value.m01);
-            writer.WritePropertyName("m02"); writer.WriteValue(value.m02);
-            writer.WritePropertyName("m03"); writer.WriteValue(value.m03);
-            writer.WritePropertyName("m10"); writer.WriteValue(value.m10);
-            writer.WritePropertyName("m11"); writer.WriteValue(value.m11);
-            writer.WritePropertyName("m12"); writer.WriteValue(value.m12);
-            writer.WritePropertyName("m13"); writer.WriteValue(value.m13);
-            writer.WritePropertyName("m20"); writer.WriteValue(value.m20);
-            writer.WritePropertyName("m21"); writer.WriteValue(value.m21);
-            writer.WritePropertyName("m22"); writer.WriteValue(value.m22);
-            writer.WritePropertyName("m23"); writer.WriteValue(value.m23);
-            writer.WritePropertyName("m30"); writer.WriteValue(value.m30);
-            writer.WritePropertyName("m31"); writer.WriteValue(value.m31);
-            writer.WritePropertyName("m32"); writer.WriteValue(value.m32);
-            writer.WritePropertyName("m33"); writer.WriteValue(value.m33);
+            writer.WritePropertyName("m00"); writer.WriteValue(m.m00);
+            writer.WritePropertyName("m01"); writer.WriteValue(m.m01);
+            writer.WritePropertyName("m02"); writer.WriteValue(m.m02);
+            writer.WritePropertyName("m03"); writer.WriteValue(m.m03);
+            writer.WritePropertyName("m10"); writer.WriteValue(m.m10);
+            writer.WritePropertyName("m11"); writer.WriteValue(m.m11);
+            writer.WritePropertyName("m12"); writer.WriteValue(m.m12);
+            writer.WritePropertyName("m13"); writer.WriteValue(m.m13);
+            writer.WritePropertyName("m20"); writer.WriteValue(m.m20);
+            writer.WritePropertyName("m21"); writer.WriteValue(m.m21);
+            writer.WritePropertyName("m22"); writer.WriteValue(m.m22);
+            writer.WritePropertyName("m23"); writer.WriteValue(m.m23);
+            writer.WritePropertyName("m30"); writer.WriteValue(m.m30);
+            writer.WritePropertyName("m31"); writer.WriteValue(m.m31);
+            writer.WritePropertyName("m32"); writer.WriteValue(m.m32);
+            writer.WritePropertyName("m33"); writer.WriteValue(m.m33);
             writer.WriteEndObject();
         }
 
-        public override Matrix4x4 ReadJson(JsonReader reader, Type objectType, Matrix4x4 existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
                 return new Matrix4x4(); // Return zero matrix for null (consistent with missing field defaults)
@@ -272,24 +296,27 @@ namespace MCPForUnity.Runtime.Serialization
     // newtonsoft-json-for-unity converters) instantiate it via reflection and bind it into
     // JsonConvert.DefaultSettings, which silently rewrites any UnityEngine.Object reference in
     // unrelated project code as an asset path string. See issue #1138.
-    internal class UnityEngineObjectConverter : JsonConverter<UnityEngine.Object>
+    internal class UnityEngineObjectConverter : JsonConverter
     {
+        public override bool CanConvert(Type objectType) => typeof(UnityEngine.Object).IsAssignableFrom(objectType);
+
         public override bool CanRead => true; // We need to implement ReadJson
         public override bool CanWrite => true;
 
-        public override void WriteJson(JsonWriter writer, UnityEngine.Object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (value == null)
+            UnityEngine.Object obj = (UnityEngine.Object)value;
+            if (obj == null)
             {
                 writer.WriteNull();
                 return;
             }
 
 #if UNITY_EDITOR // AssetDatabase and EditorUtility are Editor-only
-            if (UnityEditor.AssetDatabase.Contains(value))
+            if (UnityEditor.AssetDatabase.Contains(obj))
             {
                 // It's an asset (Material, Texture, Prefab, etc.)
-                string path = UnityEditor.AssetDatabase.GetAssetPath(value);
+                string path = UnityEditor.AssetDatabase.GetAssetPath(obj);
                 if (!string.IsNullOrEmpty(path))
                 {
                     writer.WriteValue(path);
@@ -299,8 +326,8 @@ namespace MCPForUnity.Runtime.Serialization
                     // Asset exists but path couldn't be found? Write minimal info.
                     writer.WriteStartObject();
                     writer.WritePropertyName("name");
-                    writer.WriteValue(value.name);
-                    WriteSerializedObjectId(writer, value);
+                    writer.WriteValue(obj.name);
+                    WriteSerializedObjectId(writer, obj);
                     writer.WritePropertyName("isAssetWithoutPath");
                     writer.WriteValue(true);
                     writer.WriteEndObject();
@@ -311,23 +338,23 @@ namespace MCPForUnity.Runtime.Serialization
                 // It's a scene object (GameObject, Component, etc.)
                 writer.WriteStartObject();
                 writer.WritePropertyName("name");
-                writer.WriteValue(value.name);
-                WriteSerializedObjectId(writer, value);
+                writer.WriteValue(obj.name);
+                WriteSerializedObjectId(writer, obj);
                 writer.WriteEndObject();
             }
 #else
             // Runtime fallback: Write basic info without AssetDatabase
             writer.WriteStartObject();
             writer.WritePropertyName("name");
-            writer.WriteValue(value.name);
-            WriteSerializedObjectId(writer, value);
+            writer.WriteValue(obj.name);
+            WriteSerializedObjectId(writer, obj);
              writer.WritePropertyName("warning");
             writer.WriteValue("UnityEngineObjectConverter running in non-Editor mode, asset path unavailable.");
             writer.WriteEndObject();
 #endif
         }
 
-        public override UnityEngine.Object ReadJson(JsonReader reader, Type objectType, UnityEngine.Object existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {
