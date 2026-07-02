@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Update version across all project files.
 
-This script updates the version in all files that need it:
+This script updates the version and repository references in all files that need it:
 - MCPForUnity/package.json (Unity package version)
 - manifest.json (MCP bundle manifest)
 - Server/pyproject.toml (Python package version)
 - Server/README.md (version references)
-- README.md (fixed version examples)
-- docs/i18n/README-zh.md (fixed version examples)
+- README.md (fixed version examples and install URLs)
+- docs/i18n/README-zh.md (fixed version examples and install URLs)
+- docs/development/README-DEV-zh.md (branch references)
 
 Usage:
     python3 tools/update_versions.py [--dry-run] [--version VERSION]
@@ -40,6 +41,7 @@ PYPROJECT_TOML = REPO_ROOT / "Server" / "pyproject.toml"
 SERVER_README = REPO_ROOT / "Server" / "README.md"
 ROOT_README = REPO_ROOT / "README.md"
 ZH_README = REPO_ROOT / "docs" / "i18n" / "README-zh.md"
+DEV_ZH_README = REPO_ROOT / "docs" / "development" / "README-DEV-zh.md"
 
 
 def load_package_version() -> str:
@@ -150,8 +152,8 @@ def update_server_readme(new_version: str, dry_run: bool = False) -> bool:
     content = SERVER_README.read_text(encoding="utf-8")
 
     # Pattern to match git+https URLs with version tags
-    pattern = r'git\+https://github\.com/CoplayDev/unity-mcp@v[0-9]+\.[0-9]+\.[0-9]+#subdirectory=Server'
-    replacement = f'git+https://github.com/CoplayDev/unity-mcp@v{new_version}#subdirectory=Server'
+    pattern = r'git\+https://github\.com/(?:CoplayDev|BWmot)/unity-mcp@v[0-9]+\.[0-9]+\.[0-9]+#subdirectory=Server'
+    replacement = f'git+https://github.com/BWmot/unity-mcp@v{new_version}#subdirectory=Server'
 
     if not re.search(pattern, content):
         print(
@@ -176,20 +178,29 @@ def update_root_readme(new_version: str, dry_run: bool = False) -> bool:
 
     content = ROOT_README.read_text(encoding="utf-8")
 
-    # Pattern to match git URLs with fixed version tags
-    pattern = r'https://github\.com/CoplayDev/unity-mcp\.git\?path=/MCPForUnity#v[0-9]+\.[0-9]+\.[0-9]+'
-    replacement = f'https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v{new_version}'
+    changed = False
 
-    if not re.search(pattern, content):
-        print(
-            f"✓ {ROOT_README.relative_to(REPO_ROOT)} has no version references to update")
+    # Update install URLs to the fork/current branch used by this repo.
+    install_pattern = r'https://github\.com/(?:CoplayDev|BWmot)/unity-mcp\.git\?path=/MCPForUnity#(?:main|beta|unity2020-mcp)'
+    install_replacement = 'https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp'
+    if re.search(install_pattern, content):
+        content = re.sub(install_pattern, install_replacement, content)
+        changed = True
+
+    # Pattern to match git URLs with fixed version tags
+    version_pattern = r'https://github\.com/(?:CoplayDev|BWmot)/unity-mcp\.git\?path=/MCPForUnity#v[0-9]+\.[0-9]+\.[0-9]+'
+    version_replacement = f'https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#v{new_version}'
+    if re.search(version_pattern, content):
+        content = re.sub(version_pattern, version_replacement, content)
+        changed = True
+
+    if not changed:
+        print(f"✓ {ROOT_README.relative_to(REPO_ROOT)} has no references to update")
         return False
 
-    print(
-        f"Updating version references in {ROOT_README.relative_to(REPO_ROOT)}")
+    print(f"Updating references in {ROOT_README.relative_to(REPO_ROOT)}")
 
     if not dry_run:
-        content = re.sub(pattern, replacement, content)
         ROOT_README.write_text(content, encoding="utf-8")
 
     return True
@@ -203,20 +214,52 @@ def update_zh_readme(new_version: str, dry_run: bool = False) -> bool:
 
     content = ZH_README.read_text(encoding="utf-8")
 
-    # Pattern to match git URLs with fixed version tags
-    pattern = r'https://github\.com/CoplayDev/unity-mcp\.git\?path=/MCPForUnity#v[0-9]+\.[0-9]+\.[0-9]+'
-    replacement = f'https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v{new_version}'
+    changed = False
 
-    if not re.search(pattern, content):
-        print(
-            f"✓ {ZH_README.relative_to(REPO_ROOT)} has no version references to update")
+    install_pattern = r'https://github\.com/(?:CoplayDev|BWmot)/unity-mcp\.git\?path=/MCPForUnity#(?:main|beta|unity2020-mcp)'
+    install_replacement = 'https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp'
+    if re.search(install_pattern, content):
+        content = re.sub(install_pattern, install_replacement, content)
+        changed = True
+
+    version_pattern = r'https://github\.com/(?:CoplayDev|BWmot)/unity-mcp\.git\?path=/MCPForUnity#v[0-9]+\.[0-9]+\.[0-9]+'
+    version_replacement = f'https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#v{new_version}'
+    if re.search(version_pattern, content):
+        content = re.sub(version_pattern, version_replacement, content)
+        changed = True
+
+    if not changed:
+        print(f"✓ {ZH_README.relative_to(REPO_ROOT)} has no references to update")
         return False
 
-    print(f"Updating version references in {ZH_README.relative_to(REPO_ROOT)}")
+    print(f"Updating references in {ZH_README.relative_to(REPO_ROOT)}")
+
+    if not dry_run:
+        ZH_README.write_text(content, encoding="utf-8")
+
+    return True
+
+
+def update_dev_zh_readme(dry_run: bool = False) -> bool:
+    """Update branch references in docs/development/README-DEV-zh.md."""
+    if not DEV_ZH_README.exists():
+        print(f"Warning: {DEV_ZH_README.relative_to(REPO_ROOT)} not found")
+        return False
+
+    content = DEV_ZH_README.read_text(encoding="utf-8")
+
+    pattern = r'(?<![A-Za-z0-9_])(?:CoplayDev/unity-mcp#main|CoplayDev/unity-mcp#beta|CoplayDev/unity-mcp#unity2020-mcp|https://github\.com/(?:CoplayDev|BWmot)/unity-mcp\.git\?path=/MCPForUnity#(?:main|beta|unity2020-mcp))'
+    replacement = 'https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp'
+
+    if not re.search(pattern, content):
+        print(f"✓ {DEV_ZH_README.relative_to(REPO_ROOT)} has no references to update")
+        return False
+
+    print(f"Updating references in {DEV_ZH_README.relative_to(REPO_ROOT)}")
 
     if not dry_run:
         content = re.sub(pattern, replacement, content)
-        ZH_README.write_text(content, encoding="utf-8")
+        DEV_ZH_README.write_text(content, encoding="utf-8")
 
     return True
 
@@ -264,6 +307,15 @@ def main() -> int:
 
         if update_server_readme(version, args.dry_run):
             updates_made.append("Server/README.md")
+
+        if update_root_readme(version, args.dry_run):
+            updates_made.append("README.md")
+
+        if update_zh_readme(version, args.dry_run):
+            updates_made.append("docs/i18n/README-zh.md")
+
+        if update_dev_zh_readme(args.dry_run):
+            updates_made.append("docs/development/README-DEV-zh.md")
 
 
         # Summary

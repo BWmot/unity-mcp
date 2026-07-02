@@ -7,8 +7,8 @@ Usage:
   python mcp_source.py [--manifest /abs/path/to/manifest.json] [--repo /abs/path/to/unity-mcp] [--choice 1|2|3|4]
 
 Choices:
-  1) Upstream main (CoplayDev/unity-mcp)
-  2) Upstream beta (CoplayDev/unity-mcp#beta)
+    1) Upstream main (BWmot/unity-mcp)
+    2) Upstream beta (BWmot/unity-mcp#beta)
   3) Your remote current branch (derived from `origin` and current branch)
   4) Local repo workspace (file: URL to MCPForUnity in your checkout)
 """
@@ -92,8 +92,8 @@ def write_json(path: pathlib.Path, data: dict) -> None:
 
 
 def build_options(repo_root: pathlib.Path, branch: str, origin_https: str):
-    upstream_main = "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main"
-    upstream_beta = "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#beta"
+    upstream_main = "https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp"
+    upstream_beta = "https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#beta"
     # Ensure origin is https
     origin = origin_https
     # If origin is a local file path or non-https, try to coerce to https github if possible

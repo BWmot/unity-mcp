@@ -5,7 +5,7 @@
 
 ## 贡献代码
 
-**从 `beta` 分支创建 PR**。`main` 分支仅用于稳定版本发布。
+**从 `unity2020-mcp` 分支创建 PR**。`beta` 分支仅用于上游基线同步，`main` 分支仅用于稳定版本发布。
 
 在提出重大新功能之前，请先联系讨论——可能已有人在开发，或者该功能曾被讨论过。请通过 issue 或 discussion 进行协调。
 
@@ -29,8 +29,8 @@ python mcp_source.py
 ```
 
 选项：
-1. **Upstream main** - 稳定版本 (CoplayDev/unity-mcp)
-2. **Upstream beta** - 开发分支 (CoplayDev/unity-mcp#beta)
+1. **Upstream main** - 稳定版本 (BWmot/unity-mcp)
+2. **Upstream beta** - 开发分支 (BWmot/unity-mcp#beta)
 3. **Remote branch** - 你的 fork 当前分支
 4. **Local workspace** - 指向本地 MCPForUnity 文件夹的 file: URL
 

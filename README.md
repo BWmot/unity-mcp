@@ -7,7 +7,7 @@
 
 <div align="center">
 
-[English](README.md) <img src="docs/images/connector.svg" alt="↔" height="14"> [简体中文](docs/i18n/README-zh.md) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; [Discord](https://discord.gg/y4p8KfzrN4) <img src="docs/images/connector.svg" alt="↔" height="14"> [Wiki](https://coplaydev.github.io/unity-mcp/)
+[English](README.md) <img src="docs/images/connector.svg" alt="↔" height="14"> [简体中文](docs/i18n/README-zh.md) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; [Discord](https://discord.gg/y4p8KfzrN4) <img src="docs/images/connector.svg" alt="↔" height="14"> [Wiki](https://bwmot.github.io/unity-mcp/)
 
 #### Proudly sponsored and maintained by [Aura](https://www.tryaura.dev/) — the AI assistant for Unreal & Unity.
 ##### And don't miss [Godot AI](https://github.com/hi-godot/godot-ai), the new open source project from the makers of MCP for Unity.
@@ -52,7 +52,7 @@ Control the Unity Editor in natural language from any MCP client — create scen
 **Requirements:** Unity **2021.3 LTS → 6.x** · Python **3.10+** (via [`uv`](https://docs.astral.sh/uv/)). Works with **any MCP client** — Claude Desktop & Code, Cursor, VS Code, Windsurf, Cline, Gemini CLI, and more.
 
 1. **Install** — Unity → Package Manager → Add from git URL:
-   `https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main` &nbsp;_(pin `#v10.0.0` for this release, or `openupm add com.bwmol.unitymcp2020`)_
+  `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp` &nbsp;_(pin `#v10.0.0` for this release, or `openupm add com.bwmol.unitymcp2020`)_
 2. **Configure** — `Window → MCP for Unity → Configure All Detected Clients`.
 3. **Prompt** — *"Create a cube at the origin and add a Rigidbody."* The cube appears in seconds.
 
@@ -61,25 +61,25 @@ Control the Unity Editor in natural language from any MCP client — create scen
 ## Community
 
 - [Discord](https://discord.gg/y4p8KfzrN4) — chat with maintainers and other contributors
-- [Issues](https://github.com/CoplayDev/unity-mcp/issues) — bugs and feature requests
-- [Discussions](https://github.com/CoplayDev/unity-mcp/discussions) — design ideas and broader questions
+- [Issues](https://github.com/BWmot/unity-mcp/issues) — bugs and feature requests
+- [Discussions](https://github.com/BWmot/unity-mcp/discussions) — design ideas and broader questions
 - Security: see [SECURITY.md](SECURITY.md) for private reporting
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Branch off `beta`, not `main`. The full dev setup, testing, and release process live in the [Contributing](https://coplaydev.github.io/unity-mcp/contributing/dev-setup) docs.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Branch off `unity2020-mcp`, not `main`. The full dev setup, testing, and release process live in the [Contributing](https://bwmot.github.io/unity-mcp/contributing/dev-setup) docs.
 
 ## Advanced
 
-- **Multiple Unity instances** — [Multi-Instance Routing](https://coplaydev.github.io/unity-mcp/guides/multi-instance)
-- **Tool groups (vfx / animation / ui / testing / etc.)** — [Tool Groups](https://coplaydev.github.io/unity-mcp/guides/tool-groups)
-- **v10 asset generation and upgrade notes** — [v10 Migration](https://coplaydev.github.io/unity-mcp/migrations/v10)
-- **Roslyn script validation** — [Roslyn Validation](https://coplaydev.github.io/unity-mcp/guides/roslyn)
-- **Remote-hosted server with auth** — [Remote Server Auth](https://coplaydev.github.io/unity-mcp/guides/remote-server-auth)
+- **Multiple Unity instances** — [Multi-Instance Routing](https://bwmot.github.io/unity-mcp/guides/multi-instance)
+- **Tool groups (vfx / animation / ui / testing / etc.)** — [Tool Groups](https://bwmot.github.io/unity-mcp/guides/tool-groups)
+- **v10 asset generation and upgrade notes** — [v10 Migration](https://bwmot.github.io/unity-mcp/migrations/v10)
+- **Roslyn script validation** — [Roslyn Validation](https://bwmot.github.io/unity-mcp/guides/roslyn)
+- **Remote-hosted server with auth** — [Remote Server Auth](https://bwmot.github.io/unity-mcp/guides/remote-server-auth)
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=CoplayDev/unity-mcp&type=Date)](https://www.star-history.com/#CoplayDev/unity-mcp&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=BWmot/unity-mcp&type=Date)](https://www.star-history.com/#BWmot/unity-mcp&Date)
 
 ## Citation
 
