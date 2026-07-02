@@ -776,21 +776,18 @@ namespace MCPForUnity.Editor.Windows
 
             content.Add(bulkRow);
 
-            // Roslyn 鈥?for execute_code modern C# support
-            // Check if Roslyn types are actually loaded (covers NuGet, Plugins folder, etc.)
-            bool roslynLoaded = Type.GetType("Microsoft.CodeAnalysis.CSharp.CSharpCompilation, Microsoft.CodeAnalysis.CSharp") != null;
             bool roslynInstalledLocally = RoslynInstaller.IsInstalled();
             AddDependencyRow(content,
                 "Roslyn (C# 12+ Compiler)",
                 "Enables modern C# syntax in execute_code tool (scripting_ext group).",
-                roslynLoaded,
+                roslynInstalledLocally,
                 roslynInstalledLocally
                     ? "Installed via Plugins/Roslyn \u2014 execute_code uses Roslyn"
-                    : "Available (loaded from NuGet/external) \u2014 execute_code uses Roslyn",
+                    : "Not installed \u2014 execute_code falls back to C# 6 (CodeDom)",
                 "Not installed \u2014 execute_code falls back to C# 6 (CodeDom)",
                 done => { RoslynInstaller.Install(interactive: true); done?.Invoke(); },
                 roslynInstalledLocally
-                    ? (Action<Action>)(done => { UninstallRoslyn(); done?.Invoke(); })
+                    ? (Action<Action>)(done => { RoslynInstaller.Uninstall(); done?.Invoke(); })
                     : null);
 
             // ProBuilder

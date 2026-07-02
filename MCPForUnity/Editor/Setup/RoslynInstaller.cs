@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -14,10 +13,10 @@ namespace MCPForUnity.Editor.Setup
 
         private static readonly (string packageId, string version, string dllPath, string dllName)[] NuGetEntries =
         {
-            ("microsoft.codeanalysis.common",         "4.12.0", "lib/netstandard2.0/Microsoft.CodeAnalysis.dll",                   "Microsoft.CodeAnalysis.dll"),
-            ("microsoft.codeanalysis.csharp",         "4.12.0", "lib/netstandard2.0/Microsoft.CodeAnalysis.CSharp.dll",            "Microsoft.CodeAnalysis.CSharp.dll"),
-            ("system.collections.immutable",          "8.0.0",  "lib/netstandard2.0/System.Collections.Immutable.dll",             "System.Collections.Immutable.dll"),
-            ("system.reflection.metadata",            "8.0.0",  "lib/netstandard2.0/System.Reflection.Metadata.dll",               "System.Reflection.Metadata.dll"),
+            ("microsoft.codeanalysis.common",         "4.8.0",  "lib/netstandard2.0/Microsoft.CodeAnalysis.dll",                   "Microsoft.CodeAnalysis.dll"),
+            ("microsoft.codeanalysis.csharp",         "4.8.0",  "lib/netstandard2.0/Microsoft.CodeAnalysis.CSharp.dll",            "Microsoft.CodeAnalysis.CSharp.dll"),
+            ("system.collections.immutable",          "7.0.0",  "lib/netstandard2.0/System.Collections.Immutable.dll",             "System.Collections.Immutable.dll"),
+            ("system.reflection.metadata",            "7.0.0",  "lib/netstandard2.0/System.Reflection.Metadata.dll",               "System.Reflection.Metadata.dll"),
             // Transitive dep of Microsoft.CodeAnalysis.* on netstandard2.0. Without it, Roslyn's StringTable
             // static cctor throws FileNotFoundException for v6.0.0.0 and every Roslyn entry point fails to
             // initialize. Unity ships a v4.x of this assembly which does NOT satisfy the v6 reference.
@@ -32,26 +31,6 @@ namespace MCPForUnity.Editor.Setup
                 string path = Path.Combine(folder, entry.dllName);
                 if (!File.Exists(path))
                     return false;
-
-                // Defense-in-depth: a stale DLL whose assembly version is older than what
-                // Roslyn references (e.g. a v4.x System.Runtime.CompilerServices.Unsafe
-                // shadowing the v6 we actually need) would still satisfy file-existence but
-                // leave Roslyn unable to load. Compare the on-disk assembly version against
-                // each entry's declared NuGet version, treating "older or unreadable" as not
-                // installed so Install() can rewrite it.
-                if (Version.TryParse(entry.version, out var requiredVersion))
-                {
-                    try
-                    {
-                        var actual = AssemblyName.GetAssemblyName(path).Version;
-                        if (actual == null || actual < requiredVersion)
-                            return false;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
             }
             return true;
         }
@@ -145,6 +124,23 @@ namespace MCPForUnity.Editor.Setup
                         "OK");
                 }
             }
+        }
+
+        public static void Uninstall()
+        {
+            string folder = Path.Combine(Application.dataPath, PluginsRelPath);
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, true);
+            }
+
+            AssetDatabase.Refresh();
+            EditorApplication.delayCall += () =>
+            {
+                var window = EditorWindow.GetWindow<MCPForUnity.Editor.Windows.MCPForUnityEditorWindow>(false, "MCP For Unity", true);
+                if (window != null)
+                    window.Repaint();
+            };
         }
 
         private static byte[] ExtractFileFromZip(byte[] zipBytes, string entryPath)

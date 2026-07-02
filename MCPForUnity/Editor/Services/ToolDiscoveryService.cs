@@ -125,6 +125,34 @@ namespace MCPForUnity.Editor.Services
             EditorPrefs.SetBool(key, enabled);
         }
 
+        /// <summary>
+        /// Rewrites the current tool enable states into EditorPrefs.
+        /// This keeps the stored preference values aligned with the currently discovered tool list.
+        /// </summary>
+        public void FlushToolPreferences(IEnumerable<ToolMetadata> tools)
+        {
+            if (tools == null)
+            {
+                return;
+            }
+
+            foreach (var tool in tools)
+            {
+                if (tool == null || string.IsNullOrWhiteSpace(tool.Name))
+                {
+                    continue;
+                }
+
+                string key = GetToolPreferenceKey(tool.Name);
+                bool value = EditorPrefs.HasKey(key)
+                    ? EditorPrefs.GetBool(key, tool.AutoRegister || tool.IsBuiltIn)
+                    : (tool.AutoRegister || tool.IsBuiltIn);
+
+                EditorPrefs.SetBool(key, value);
+            }
+
+        }
+
         private ToolMetadata ExtractToolMetadata(Type type, McpForUnityToolAttribute toolAttr)
         {
             try
