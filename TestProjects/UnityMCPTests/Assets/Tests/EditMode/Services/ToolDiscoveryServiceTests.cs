@@ -1,6 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
 using MCPForUnity.Editor.Constants;
+using MCPForUnity.Editor.Helpers;
 using MCPForUnity.Editor.Services;
 using UnityEditor;
 
@@ -15,22 +16,14 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
         public void SetUp()
         {
             // Clean up any test preferences
-            string testKey = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
-            if (EditorPrefs.HasKey(testKey))
-            {
-                EditorPrefs.DeleteKey(testKey);
-            }
+            DeleteToolPreferenceKeys(TestToolName);
         }
 
         [TearDown]
         public void TearDown()
         {
             // Clean up test preferences after each test
-            string testKey = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
-            if (EditorPrefs.HasKey(testKey))
-            {
-                EditorPrefs.DeleteKey(testKey);
-            }
+            DeleteToolPreferenceKeys(TestToolName);
         }
 
         [Test]
@@ -43,7 +36,7 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
             service.SetToolEnabled(TestToolName, false);
 
             // Assert
-            string key = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
+            string key = GetProjectScopedToolPreferenceKey(TestToolName);
             Assert.IsTrue(EditorPrefs.HasKey(key), "Preference key should exist after SetToolEnabled");
             Assert.IsFalse(EditorPrefs.GetBool(key, true), "Preference should be set to false");
         }
@@ -52,11 +45,7 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
         public void IsToolEnabled_ReturnsFalse_WhenToolDoesNotExist()
         {
             // Arrange - Ensure no preference exists
-            string key = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
-            if (EditorPrefs.HasKey(key))
-            {
-                EditorPrefs.DeleteKey(key);
-            }
+            DeleteToolPreferenceKeys(TestToolName);
 
             var service = new ToolDiscoveryService();
 
@@ -72,7 +61,7 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
         public void IsToolEnabled_ReturnsStoredValue_WhenPreferenceExists()
         {
             // Arrange
-            string key = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
+            string key = GetProjectScopedToolPreferenceKey(TestToolName);
             EditorPrefs.SetBool(key, false);  // Store false value
             var service = new ToolDiscoveryService();
 
@@ -87,7 +76,7 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
         public void IsToolEnabled_ReturnsTrue_WhenPreferenceSetToTrue()
         {
             // Arrange
-            string key = EditorPrefKeys.ToolEnabledPrefix + TestToolName;
+            string key = GetProjectScopedToolPreferenceKey(TestToolName);
             EditorPrefs.SetBool(key, true);
             var service = new ToolDiscoveryService();
 
@@ -96,6 +85,26 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
 
             // Assert
             Assert.IsTrue(result, "Should return the stored preference value (true)");
+        }
+
+        [Test]
+        public void IsToolEnabled_MigratesLegacyGlobalPreference_WhenProjectPreferenceMissing()
+        {
+            // Arrange
+            string projectKey = GetProjectScopedToolPreferenceKey(TestToolName);
+            string legacyKey = GetLegacyToolPreferenceKey(TestToolName);
+            EditorPrefs.DeleteKey(projectKey);
+            EditorPrefs.SetBool(legacyKey, false);
+
+            var service = new ToolDiscoveryService();
+
+            // Act
+            bool result = service.IsToolEnabled(TestToolName);
+
+            // Assert
+            Assert.IsFalse(result, "Should return the legacy preference value when project preference is missing");
+            Assert.IsTrue(EditorPrefs.HasKey(projectKey), "Legacy preference should be copied to the project-scoped key");
+            Assert.IsFalse(EditorPrefs.GetBool(projectKey, true), "Project-scoped preference should preserve the legacy false value");
         }
 
         [Test]
@@ -123,7 +132,7 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
 
             Assert.IsNotNull(builtInTool, "Expected at least one built-in tool with AutoRegister=false.");
 
-            string key = EditorPrefKeys.ToolEnabledPrefix + builtInTool.Name;
+            string key = GetProjectScopedToolPreferenceKey(builtInTool.Name);
             bool hadOriginalKey = EditorPrefs.HasKey(key);
             bool originalValue = hadOriginalKey && EditorPrefs.GetBool(key, true);
 
@@ -150,6 +159,22 @@ namespace MCPForUnity.Editor.Tests.EditMode.Services
                     EditorPrefs.DeleteKey(key);
                 }
             }
+        }
+
+        private static string GetProjectScopedToolPreferenceKey(string toolName)
+        {
+            return $"{EditorPrefKeys.ToolEnabledPrefix}{ProjectIdentityUtility.GetProjectHash()}.{toolName}";
+        }
+
+        private static string GetLegacyToolPreferenceKey(string toolName)
+        {
+            return EditorPrefKeys.ToolEnabledPrefix + toolName;
+        }
+
+        private static void DeleteToolPreferenceKeys(string toolName)
+        {
+            EditorPrefs.DeleteKey(GetProjectScopedToolPreferenceKey(toolName));
+            EditorPrefs.DeleteKey(GetLegacyToolPreferenceKey(toolName));
         }
     }
 }

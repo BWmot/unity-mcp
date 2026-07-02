@@ -110,6 +110,14 @@ namespace MCPForUnity.Editor.Services
                 return EditorPrefs.GetBool(key, true);
             }
 
+            string legacyKey = GetLegacyToolPreferenceKey(toolName);
+            if (EditorPrefs.HasKey(legacyKey))
+            {
+                bool legacyValue = EditorPrefs.GetBool(legacyKey, true);
+                EditorPrefs.SetBool(key, legacyValue);
+                return legacyValue;
+            }
+
             var metadata = GetToolMetadata(toolName);
             return metadata?.AutoRegister ?? false;
         }
@@ -144,9 +152,12 @@ namespace MCPForUnity.Editor.Services
                 }
 
                 string key = GetToolPreferenceKey(tool.Name);
+                string legacyKey = GetLegacyToolPreferenceKey(tool.Name);
                 bool value = EditorPrefs.HasKey(key)
                     ? EditorPrefs.GetBool(key, tool.AutoRegister || tool.IsBuiltIn)
-                    : (tool.AutoRegister || tool.IsBuiltIn);
+                    : EditorPrefs.HasKey(legacyKey)
+                        ? EditorPrefs.GetBool(legacyKey, tool.AutoRegister || tool.IsBuiltIn)
+                        : (tool.AutoRegister || tool.IsBuiltIn);
 
                 EditorPrefs.SetBool(key, value);
             }
@@ -276,12 +287,20 @@ namespace MCPForUnity.Editor.Services
             string key = GetToolPreferenceKey(metadata.Name);
             if (!EditorPrefs.HasKey(key))
             {
-                bool defaultValue = metadata.AutoRegister || metadata.IsBuiltIn;
+                string legacyKey = GetLegacyToolPreferenceKey(metadata.Name);
+                bool defaultValue = EditorPrefs.HasKey(legacyKey)
+                    ? EditorPrefs.GetBool(legacyKey, metadata.AutoRegister || metadata.IsBuiltIn)
+                    : metadata.AutoRegister || metadata.IsBuiltIn;
                 EditorPrefs.SetBool(key, defaultValue);
             }
         }
 
         private static string GetToolPreferenceKey(string toolName)
+        {
+            return $"{EditorPrefKeys.ToolEnabledPrefix}{ProjectIdentityUtility.GetProjectHash()}.{toolName}";
+        }
+
+        private static string GetLegacyToolPreferenceKey(string toolName)
         {
             return EditorPrefKeys.ToolEnabledPrefix + toolName;
         }
