@@ -650,7 +650,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             }
                             catch (Exception ex)
                             {
-                                IoInfo($"[IO] 鉁?serialize FAIL tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
+                                IoInfo($"[IO] serialize FAIL tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
                                 throw;
                             }
 
@@ -660,7 +660,7 @@ namespace MCPForUnity.Editor.Services.Transport.Transports
                             }
                             catch (Exception ex)
                             {
-                                IoInfo($"[IO] 鉁?write FAIL  tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
+                                IoInfo($"[IO] write FAIL  tag=response reqId=? {ex.GetType().Name}: {ex.Message}");
                                 throw;
                             }
                         }
