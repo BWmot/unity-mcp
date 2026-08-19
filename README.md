@@ -22,17 +22,27 @@
 
 ---
 
+> **⚠️ This is the `unity2020-mcp` branch** — a **Unity 2020.2-compatible** derivative of
+> [MCP for Unity](https://github.com/CoplayDev/unity-mcp), continuously synced with upstream `beta`.
+>
+> - **Targets Unity 2020.2 → 6.x** (upstream requires 2021.3+). All C# / UI Toolkit code is
+>   adapted to compile under Unity 2020.2 (C# 8.0 / .NET Standard 2.0) while staying
+>   feature-identical to upstream.
+> - **Package name:** `com.bwmol.unitymcp2020` (changed from `com.coplaydev.unity-mcp` to avoid
+>   clashing with the upstream package).
+> - **Install:** `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp`
+> - **Upstream:** [CoplayDev/unity-mcp](https://github.com/CoplayDev/unity-mcp) — merge upstream
+>   changes into this branch with `git merge upstream/beta`.
+
 <!-- recent-updates:start -->
 <details>
 <summary><strong>Recent Updates</strong></summary>
 
-* **[v10.0.0](https://github.com/CoplayDev/unity-mcp/releases/tag/v10.0.0)** (2026-06-30)
-* **[v9.7.3](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.3)** (2026-06-15)
-* **[v9.7.1](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.1)** (2026-05-24)
-* **[v9.7.0](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.0)** (2026-05-22)
-* **[v9.6.8](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.6.8)** (2026-04-27)
+* **v10.1.3-beta.4** (2026-08-19) — synced with upstream `beta` (v10.1.3-beta.4), incl. AssetGen
+  audio backend, `UvInstaller`, OceanMark branding, stdio timeout config. Compiles on Unity 2020.2.
+* **v10.0.1-beta.1** — initial fork baseline from upstream `beta`.
 
-Full history: [Release Notes](https://coplaydev.github.io/unity-mcp/releases).
+Upstream release history: [coplaydev.github.io/unity-mcp/releases](https://coplaydev.github.io/unity-mcp/releases).
 
 </details>
 <!-- recent-updates:end -->
@@ -49,10 +59,10 @@ Control the Unity Editor in natural language from any MCP client — create scen
 
 ## Quickstart
 
-**Requirements:** Unity **2021.3 LTS → 6.x** · Python **3.10+** (via [`uv`](https://docs.astral.sh/uv/)). Works with **any MCP client** — Claude Desktop & Code, Cursor, VS Code, Windsurf, Cline, Gemini CLI, and more.
+**Requirements:** Unity **2020.2 → 6.x** (this branch lowers the floor from 2021.3 to 2020.2) · Python **3.10+** (via [`uv`](https://docs.astral.sh/uv/)). Works with **any MCP client** — Claude Desktop & Code, Cursor, VS Code, Windsurf, Cline, Gemini CLI, and more.
 
 1. **Install** — Unity → Package Manager → Add from git URL:
-  `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp` &nbsp;_(pin `#v10.0.0` for this release, or `openupm add com.bwmol.unitymcp2020`)_
+  `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp` &nbsp;_(always tracks the `unity2020-mcp` branch; or `openupm add com.bwmol.unitymcp2020`)_
 2. **Configure** — `Window → MCP for Unity → Configure All Detected Clients`.
 3. **Prompt** — *"Create a cube at the origin and add a Rigidbody."* The cube appears in seconds.
 

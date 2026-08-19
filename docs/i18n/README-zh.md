@@ -7,7 +7,7 @@
 
 <div align="center">
 
-[English](../../README.md) <img src="../images/connector.svg" alt="↔" height="14"> [简体中文](README-zh.md) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; [Discord](https://discord.gg/y4p8KfzrN4) <img src="../images/connector.svg" alt="↔" height="14"> [Wiki](https://coplaydev.github.io/unity-mcp/)
+[English](../../README.md) <img src="../images/connector.svg" alt="↔" height="14"> [简体中文](README-zh.md) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; [Discord](https://discord.gg/y4p8KfzrN4) <img src="../images/connector.svg" alt="↔" height="14"> [Wiki](https://bwmot.github.io/unity-mcp/)
 
 #### 由 [Aura](https://www.tryaura.dev/) 荣誉赞助并维护 —— 面向 Unreal 与 Unity 的 AI 助手。
 ##### 别错过 [Godot AI](https://github.com/hi-godot/godot-ai) 🤖，MCP for Unity 团队推出的全新开源项目！
@@ -22,16 +22,20 @@
 
 ---
 
+> **⚠️ 这是 `unity2020-mcp` 分支** —— 从 [MCP for Unity](https://github.com/CoplayDev/unity-mcp) 派生、持续跟随上游 `beta` 同步的 **Unity 2020.2 兼容**版本。
+>
+> - **支持 Unity 2020.2 → 6.x**（上游要求 2021.3+）。所有 C# / UI Toolkit 代码都适配为在 Unity 2020.2（C# 8.0 / .NET Standard 2.0）下编译，功能与上游保持一致。
+> - **包名：** `com.bwmol.unitymcp2020`（从 `com.coplaydev.unity-mcp` 改名，避免与上游包冲突）。
+> - **安装：** `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp`
+> - **上游：** [CoplayDev/unity-mcp](https://github.com/CoplayDev/unity-mcp) —— 用 `git merge upstream/beta` 把上游改动并入本分支。
+
 <details>
-<summary><strong>最近更新</strong></summary>
+<summary><strong>分支状态</strong></summary>
 
-* **[v10.0.0](https://github.com/CoplayDev/unity-mcp/releases/tag/v10.0.0)**（2026-06-30）
-* **[v9.7.3](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.3)**（2026-06-15）
-* **[v9.7.1](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.1)**（2026-05-24）
-* **[v9.7.0](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.7.0)**（2026-05-22）
-* **[v9.6.8](https://github.com/CoplayDev/unity-mcp/releases/tag/v9.6.8)**（2026-04-27）
+* **v10.1.3-beta.4**（2026-08-19）—— 已同步上游 `beta`（v10.1.3-beta.4），包含 AssetGen 音频后端、`UvInstaller`、OceanMark 品牌标识、stdio 超时配置等，并确保在 Unity 2020.2 下编译通过。
+* **v10.0.1-beta.1** —— 基于上游 `beta` 的初始 fork。
 
-完整更新历史见 [发布说明](https://coplaydev.github.io/unity-mcp/releases)。
+上游发布历史见 [coplaydev.github.io/unity-mcp/releases](https://coplaydev.github.io/unity-mcp/releases)。
 
 </details>
 
@@ -47,10 +51,10 @@
 
 ## 快速开始
 
-**环境要求：** Unity **2021.3 LTS → 6.x** · Python **3.10+**（用 [`uv`](https://docs.astral.sh/uv/) 管理）。兼容**任意 MCP 客户端**——Claude Desktop 与 Claude Code、Cursor、VS Code、Windsurf、Cline、Gemini CLI 等等。
+**环境要求：** Unity **2020.2 → 6.x**（本分支把最低版本从 2021.3 降到 2020.2）· Python **3.10+**（用 [`uv`](https://docs.astral.sh/uv/) 管理）。兼容**任意 MCP 客户端**——Claude Desktop 与 Claude Code、Cursor、VS Code、Windsurf、Cline、Gemini CLI 等等。
 
 1. **安装** —— 在 Unity 里打开 Package Manager，从 git URL 添加：
-  `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp` &nbsp;_（如需固定本次发布，可用 `#v10.0.0`；也可以用 `openupm add com.bwmol.unitymcp2020`）_
+  `https://github.com/BWmot/unity-mcp.git?path=/MCPForUnity#unity2020-mcp` &nbsp;_（始终跟随 `unity2020-mcp` 分支；也可以用 `openupm add com.bwmol.unitymcp2020`）_
 2. **配置客户端** —— `Window → MCP for Unity → Configure All Detected Clients`，一键搞定所有检测到的客户端。
 3. **发个提示试试** —— *"在原点放一个立方体，加个 Rigidbody。"* 立方体几秒就出现在场景里了。
 
@@ -153,9 +157,9 @@ MCP for Unity 支持同时开多个 Unity 编辑器实例。想把操作定向�
 * **客户端连不上：** 确认 HTTP 服务在运行，且 URL 和你的配置一致
 
 **详细配置指南：**
-* [Fix Unity MCP and Cursor, VSCode & Windsurf](https://github.com/CoplayDev/unity-mcp/wiki/1.-Fix-Unity-MCP-and-Cursor,-VSCode-&-Windsurf) —— uv/Python 安装、PATH 问题
-* [Fix Unity MCP and Claude Code](https://github.com/CoplayDev/unity-mcp/wiki/2.-Fix-Unity-MCP-and-Claude-Code) —— Claude CLI 安装
-* [Common Setup Problems](https://github.com/CoplayDev/unity-mcp/wiki/3.-Common-Setup-Problems) —— macOS dyld 错误、常见问题
+* [Fix Unity MCP and Cursor, VSCode & Windsurf](https://github.com/BWmot/unity-mcp/wiki/1.-Fix-Unity-MCP-and-Cursor,-VSCode-&-Windsurf) —— uv/Python 安装、PATH 问题
+* [Fix Unity MCP and Claude Code](https://github.com/BWmot/unity-mcp/wiki/2.-Fix-Unity-MCP-and-Claude-Code) —— Claude CLI 安装
+* [Common Setup Problems](https://github.com/BWmot/unity-mcp/wiki/3.-Common-Setup-Problems) —— macOS dyld 错误、常见问题
 
 还是搞不定？[提个 Issue](https://github.com/CoplayDev/unity-mcp/issues) 或者 [来 Discord 问](https://discord.gg/y4p8KfzrN4)
 </details>
