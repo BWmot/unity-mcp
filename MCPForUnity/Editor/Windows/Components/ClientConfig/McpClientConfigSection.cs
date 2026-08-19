@@ -14,10 +14,8 @@ using MCPForUnity.Editor.Setup;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-#if UNITY_2021_2_OR_NEWER
-// PopupField<T> lives in UnityEditor.UIElements since Unity 2021.2
+// PopupField<T> lives in UnityEditor.UIElements since Unity 2020.1 (required on both 2020.2 and 2021.3)
 using UnityEditor.UIElements;
-#endif
 
 namespace MCPForUnity.Editor.Windows.Components.ClientConfig
 {
