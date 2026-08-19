@@ -78,7 +78,7 @@ namespace MCPForUnityTests.Editor.Tools
             try
             {
                 // Create initial prefab and link source object
-                PrefabUtility.SaveAsPrefabAssetAndConnect(sourceObject, prefabPath);
+                PrefabUtility.SaveAsPrefabAssetAndConnect(sourceObject, prefabPath, InteractionMode.AutomatedAction);
                 Assert.IsTrue(PrefabUtility.IsAnyPrefabInstanceRoot(sourceObject));
 
                 // Without unlink - should fail (already linked)

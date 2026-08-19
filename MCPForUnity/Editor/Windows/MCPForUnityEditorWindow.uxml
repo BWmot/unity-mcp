@@ -1,7 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
     <ui:VisualElement name="root-container" class="root-layout">
         <ui:VisualElement name="header-bar" class="header-bar">
-            <ui:Label text="MCP For Unity" name="title" class="header-title" />
+            <ui:VisualElement name="header-left" class="header-left">
+                <!-- OceanMark logo is injected here at index 0 in CreateGUI -->
+                <ui:Label text="MCP for Unity" name="title" class="header-title" />
+            </ui:VisualElement>
             <ui:Label text="v9.1.0" name="version-label" class="header-version" />
         </ui:VisualElement>
         <ui:VisualElement name="update-notification" class="update-notification">
@@ -12,6 +15,7 @@
                 <ui:Button name="clients-tab" text="Connect" class="tab-button active" />
                 <ui:Button name="tools-tab" text="Tools" class="tab-button" />
                 <ui:Button name="resources-tab" text="Resources" class="tab-button" />
+                <ui:Button name="assetgen-tab" text="Generative" class="tab-button" />
                 <ui:Button name="deps-tab" text="Deps" class="tab-button" />
                 <ui:Button name="advanced-tab" text="Advanced" class="tab-button" />
             </uie:Toolbar>
@@ -32,6 +36,9 @@
             </ui:ScrollView>
             <ui:ScrollView name="resources-panel" class="panel-scroll hidden">
                 <ui:VisualElement name="resources-container" class="section-stack" />
+            </ui:ScrollView>
+            <ui:ScrollView name="assetgen-panel" class="panel-scroll hidden">
+                <ui:VisualElement name="assetgen-container" class="section-stack" />
             </ui:ScrollView>
         </ui:VisualElement>
     </ui:VisualElement>

@@ -6,6 +6,8 @@ using MCPForUnity.Editor.Constants;
 using MCPForUnity.Editor.Helpers;
 using MCPForUnity.Editor.Services;
 using MCPForUnity.Editor.Windows.Components.Advanced;
+using MCPForUnity.Editor.Windows.Components.AssetGen;
+using MCPForUnity.Editor.Windows.Components.Branding;
 using MCPForUnity.Editor.Windows.Components.ClientConfig;
 using MCPForUnity.Editor.Windows.Components.Connection;
 using MCPForUnity.Editor.Windows.Components.Resources;
@@ -27,6 +29,7 @@ namespace MCPForUnity.Editor.Windows
         private McpAdvancedSection advancedSection;
         private McpToolsSection toolsSection;
         private McpResourcesSection resourcesSection;
+        private McpAssetGenSection assetGenSection;
 
         // UI Elements
         private Label versionLabel;
@@ -38,11 +41,13 @@ namespace MCPForUnity.Editor.Windows
         private Button advancedTabButton;
         private Button toolsTabButton;
         private Button resourcesTabButton;
+        private Button assetGenTabButton;
         private VisualElement clientsPanel;
         private VisualElement depsPanel;
         private VisualElement advancedPanel;
         private VisualElement toolsPanel;
         private VisualElement resourcesPanel;
+        private VisualElement assetGenPanel;
 
         private static readonly HashSet<MCPForUnityEditorWindow> OpenWindows = new HashSet<MCPForUnityEditorWindow>();
         private bool guiCreated = false;
@@ -60,7 +65,8 @@ namespace MCPForUnity.Editor.Windows
             Deps,
             Advanced,
             Tools,
-            Resources
+            Resources,
+            AssetGen
         }
 
         internal static void CloseAllWindows()
@@ -181,6 +187,15 @@ namespace MCPForUnity.Editor.Windows
                 rootVisualElement.styleSheets.Add(commonStyleSheet);
             }
 
+            // Embed the Ocean brand mark at the left of the header bar
+            var headerLeft = rootVisualElement.Q<VisualElement>("header-left");
+            if (headerLeft != null && headerLeft.Q<OceanMark>() == null)
+            {
+                var logo = new OceanMark { name = "header-logo" };
+                logo.AddToClassList("header-logo");
+                headerLeft.Insert(0, logo);
+            }
+
             // Cache UI elements
             versionLabel = rootVisualElement.Q<Label>("version-label");
             updateNotification = rootVisualElement.Q<VisualElement>("update-notification");
@@ -191,13 +206,15 @@ namespace MCPForUnity.Editor.Windows
             advancedPanel = rootVisualElement.Q<VisualElement>("advanced-panel");
             toolsPanel = rootVisualElement.Q<VisualElement>("tools-panel");
             resourcesPanel = rootVisualElement.Q<VisualElement>("resources-panel");
+            assetGenPanel = rootVisualElement.Q<VisualElement>("assetgen-panel");
             var clientsContainer = rootVisualElement.Q<VisualElement>("clients-container");
             var depsContainer = rootVisualElement.Q<VisualElement>("deps-container");
             var advancedContainer = rootVisualElement.Q<VisualElement>("advanced-container");
             var toolsContainer = rootVisualElement.Q<VisualElement>("tools-container");
             var resourcesContainer = rootVisualElement.Q<VisualElement>("resources-container");
+            var assetGenContainer = rootVisualElement.Q<VisualElement>("assetgen-container");
 
-            if (clientsPanel == null || depsPanel == null || advancedPanel == null || toolsPanel == null || resourcesPanel == null)
+            if (clientsPanel == null || depsPanel == null || advancedPanel == null || toolsPanel == null || resourcesPanel == null || assetGenPanel == null)
             {
                 McpLog.Error("Failed to find tab panels in UXML");
                 return;
@@ -230,6 +247,12 @@ namespace MCPForUnity.Editor.Windows
             if (resourcesContainer == null)
             {
                 McpLog.Error("Failed to find resources-container in UXML");
+                return;
+            }
+
+            if (assetGenContainer == null)
+            {
+                McpLog.Error("Failed to find assetgen-container in UXML");
                 return;
             }
 
@@ -353,6 +376,21 @@ namespace MCPForUnity.Editor.Windows
             else
             {
                 McpLog.Warn("Failed to load resources section UXML. Resource configuration will be unavailable.");
+            }
+
+            // Load and initialize Asset Generation section
+            var assetGenTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"{basePath}/Editor/Windows/Components/AssetGen/McpAssetGenSection.uxml"
+            );
+            if (assetGenTree != null)
+            {
+                var assetGenRoot = assetGenTree.Instantiate();
+                assetGenContainer.Add(assetGenRoot);
+                assetGenSection = new McpAssetGenSection(assetGenRoot);
+            }
+            else
+            {
+                McpLog.Warn("Failed to load asset generation section UXML. Asset generation configuration will be unavailable.");
             }
 
             // Apply .section-last class to last section in each stack
@@ -601,12 +639,14 @@ namespace MCPForUnity.Editor.Windows
             advancedTabButton = rootVisualElement.Q<Button>("advanced-tab");
             toolsTabButton = rootVisualElement.Q<Button>("tools-tab");
             resourcesTabButton = rootVisualElement.Q<Button>("resources-tab");
+            assetGenTabButton = rootVisualElement.Q<Button>("assetgen-tab");
 
             if (clientsTabButton != null) clientsTabButton.clicked += () => SwitchPanel(ActivePanel.Clients);
             if (depsTabButton != null) depsTabButton.clicked += () => SwitchPanel(ActivePanel.Deps);
             if (advancedTabButton != null) advancedTabButton.clicked += () => SwitchPanel(ActivePanel.Advanced);
             if (toolsTabButton != null) toolsTabButton.clicked += () => SwitchPanel(ActivePanel.Tools);
             if (resourcesTabButton != null) resourcesTabButton.clicked += () => SwitchPanel(ActivePanel.Resources);
+            if (assetGenTabButton != null) assetGenTabButton.clicked += () => SwitchPanel(ActivePanel.AssetGen);
 
             var savedPanel = EditorPrefs.GetString(EditorPrefKeys.EditorWindowActivePanel, ActivePanel.Clients.ToString());
             // Migrate old "Validation" saved value to "Deps"
@@ -647,6 +687,11 @@ namespace MCPForUnity.Editor.Windows
                 resourcesPanel.style.display = DisplayStyle.None;
             }
 
+            if (assetGenPanel != null)
+            {
+                assetGenPanel.style.display = DisplayStyle.None;
+            }
+
             // Show selected panel
             switch (panel)
             {
@@ -669,6 +714,10 @@ namespace MCPForUnity.Editor.Windows
                     if (resourcesPanel != null) resourcesPanel.style.display = DisplayStyle.Flex;
                     EnsureResourcesLoaded();
                     break;
+                case ActivePanel.AssetGen:
+                    if (assetGenPanel != null) assetGenPanel.style.display = DisplayStyle.Flex;
+                    assetGenSection?.Refresh();
+                    break;
             }
 
                     clientsTabButton?.EnableInClassList("active", panel == ActivePanel.Clients);
@@ -676,6 +725,7 @@ namespace MCPForUnity.Editor.Windows
                     advancedTabButton?.EnableInClassList("active", panel == ActivePanel.Advanced);
                     toolsTabButton?.EnableInClassList("active", panel == ActivePanel.Tools);
                     resourcesTabButton?.EnableInClassList("active", panel == ActivePanel.Resources);
+                    assetGenTabButton?.EnableInClassList("active", panel == ActivePanel.AssetGen);
 
             EditorPrefs.SetString(EditorPrefKeys.EditorWindowActivePanel, panel.ToString());
         }

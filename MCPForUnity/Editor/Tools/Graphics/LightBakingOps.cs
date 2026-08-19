@@ -523,6 +523,7 @@ namespace MCPForUnity.Editor.Tools.Graphics
                         settings.lightmapCompression = (LightmapCompression)intVal;
                     else
                         return false;
+                    return true;
 #else
                     // LightmapCompression not available on Unity < 2021.2
                     return false;

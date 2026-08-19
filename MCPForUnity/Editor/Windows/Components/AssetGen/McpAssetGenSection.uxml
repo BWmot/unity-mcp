@@ -7,11 +7,15 @@
             <ui:VisualElement name="gltfast-notice" class="warning-banner">
                 <ui:Label class="warning-banner-text" text="GLB import needs the glTFast package — install it from the Dependencies tab." />
             </ui:VisualElement>
+            <ui:VisualElement class="setting-row" style="margin-top: 4px;">
+                <ui:Button name="assetgen-refresh" text="Refresh" class="icon-button" />
+                <ui:Label name="assetgen-refresh-status" class="help-text" />
+            </ui:VisualElement>
             <ui:VisualElement name="assetgen-providers-container" style="margin-top: 8px;" />
             <ui:Label text="Preferences" class="config-label" />
             <ui:VisualElement class="setting-row">
                 <ui:Label text="Default 3D Format:" class="setting-label" />
-                <ui:DropdownField name="assetgen-format-dropdown" class="setting-dropdown-inline" />
+                <ui:TextField name="assetgen-format-dropdown" class="setting-dropdown-inline" />
             </ui:VisualElement>
             <ui:VisualElement class="override-row" style="margin-top: 8px;">
                 <ui:Label text="Output Root:" class="override-label" />
