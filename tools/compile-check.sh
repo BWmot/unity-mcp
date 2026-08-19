@@ -62,6 +62,18 @@ ver_major=$(echo "$UNITY_VERSION" | cut -d. -f1)
 ver_minor=$(echo "$UNITY_VERSION" | cut -d. -f2)
 ver_patch=$(echo "$UNITY_VERSION" | cut -d. -f3 | sed 's/[a-z].*//')
 
+# ------------------------------------------------------------------ langversion ----
+# Unity bundles a Roslyn that only accepts the C# version shipped with that editor:
+#   2020.2 -> C# 8.0, 2021.2+ -> C# 9.0.
+# The unity2020-mcp branch pins the floor to 2020.2, so default to 8.0 and bump for
+# newer editors. Passing a higher version than the bundled Roslyn knows (e.g. 9.0 on
+# a 2020.2 editor) makes csc fail with CS1617, so this must track the editor, not the
+# highest syntax we'd like to use.
+LANGVERSION=8.0
+if [ "$ver_major" -gt 2021 ] || { [ "$ver_major" -eq 2021 ] && [ "$ver_minor" -ge 2 ]; }; then
+  LANGVERSION=9.0
+fi
+
 version_defines() {
   local rel rM rm
   for rel in $UNITY_RELEASES; do
@@ -106,7 +118,7 @@ compile() {
 
   {
     echo "-target:library"
-    echo "-langversion:9.0"
+    echo "-langversion:$LANGVERSION"
     echo "-nostdlib+"
     echo "-preferreduilang:en-US"
     echo "-nowarn:CS1701,CS1702"      # benign netstandard facade version unification
